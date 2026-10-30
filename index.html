@@ -1,0 +1,2040 @@
+```html
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>TỪ VỰNG CHUYÊN NGÀNH VẬT LÍ - Studio Tự Học Tương Tác</title>
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Google Fonts -->
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    body {
+      font-family: 'Inter', sans-serif;
+      background-color: #f4f7fb;
+      color: #0f172a;
+    }
+    ::-webkit-scrollbar { width: 6px; height: 6px; }
+    ::-webkit-scrollbar-track { background: #f1f5f9; }
+    ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 9999px; }
+    ::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+
+    .option-btn {
+      transition: all 0.18s ease;
+    }
+    .option-btn:hover:not(:disabled) {
+      transform: translateY(-1px);
+      box-shadow: 0 4px 12px rgba(37, 99, 235, 0.08);
+    }
+    @keyframes popIn {
+      0% { transform: scale(0.96); opacity: 0; }
+      100% { transform: scale(1); opacity: 1; }
+    }
+    .animate-pop {
+      animation: popIn 0.22s ease-out forwards;
+    }
+  </style>
+</head>
+<body class="min-h-screen flex flex-col">
+
+  <!-- ================= HEADER: 3 NÚT CHỨC NĂNG & ĐỊNH DANH BẮT BUỘC ================= -->
+  <header class="sticky top-0 z-40 bg-white/95 backdrop-blur border-b border-slate-200 shadow-sm">
+    <div class="max-w-7xl mx-auto px-4 py-3 flex flex-col lg:flex-row lg:items-center lg:justify-between gap-3">
+      
+      <!-- Logo & Tên Trang Web -->
+      <div class="flex items-center justify-between">
+        <div class="flex items-center gap-3">
+          <div class="w-11 h-11 rounded-2xl bg-gradient-to-br from-indigo-600 to-blue-700 flex items-center justify-center text-white font-extrabold text-xl shadow-md shadow-indigo-500/20">
+            🔤
+          </div>
+          <div>
+            <div class="flex items-center gap-2">
+              <span class="text-[11px] font-bold uppercase tracking-wider px-2.5 py-0.5 rounded-full bg-indigo-50 text-indigo-700 border border-indigo-200">
+                Physics English • Unit 1–10 & Bài 10–34
+              </span>
+              <span id="completedHeaderBadge" class="text-[11px] font-bold px-2.5 py-0.5 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200">
+                Hoàn thành: 0 học phần
+              </span>
+            </div>
+            <h1 class="text-lg sm:text-xl font-extrabold text-slate-900 tracking-tight mt-0.5">
+              TỪ VỰNG CHUYÊN NGÀNH VẬT LÍ
+            </h1>
+          </div>
+        </div>
+
+        <!-- Nút mở danh mục bài học trên Mobile -->
+        <button onclick="toggleMobileSidebar()" class="lg:hidden px-3 py-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-xs flex items-center gap-1.5">
+          📚 Chọn Bài Học
+        </button>
+      </div>
+
+      <!-- 3 Cụm Chức Năng Nổi Bật: Họ tên/Lớp + Âm thanh + Báo kết quả -->
+      <div class="flex flex-wrap items-center gap-2 sm:gap-2.5">
+        
+        <!-- 1. Ô NHẬP HỌ TÊN & LỚP (BẮT BUỘC) -->
+        <div id="studentIdentityBox" class="flex items-center gap-1.5 bg-slate-50 border-2 border-blue-200 rounded-xl p-1.5">
+          <span class="text-xs font-bold text-blue-700 px-1.5 hidden sm:inline">👤 Học sinh:</span>
+          <input
+            id="studentNameInput"
+            type="text"
+            placeholder="Nhập Họ và tên..."
+            oninput="saveStudentIdentity()"
+            class="w-36 sm:w-44 px-2.5 py-1.5 text-sm font-semibold bg-white border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+          />
+          <input
+            id="studentClassInput"
+            type="text"
+            placeholder="Lớp (VD: 10A1)"
+            oninput="saveStudentIdentity()"
+            class="w-24 sm:w-28 px-2.5 py-1.5 text-sm font-semibold bg-white border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+          />
+        </div>
+
+        <!-- 2. NÚT ÂM THANH XÁC NHẬN ĐÚNG/SAI (WEB AUDIO API) -->
+        <button
+          id="soundToggleBtn"
+          onclick="toggleSound()"
+          class="px-3.5 py-2.5 rounded-xl font-bold text-xs sm:text-sm flex items-center gap-1.5 border transition shadow-sm bg-emerald-50 text-emerald-700 border-emerald-200 hover:bg-emerald-100"
+          title="Bật/Tắt âm thanh xác nhận Đúng/Sai"
+        >
+          <span id="soundIcon">🔊</span>
+          <span id="soundText">Âm thanh: BẬT</span>
+        </button>
+
+        <!-- 3. NÚT BÁO HỌ TÊN & KẾT QUẢ THỰC HIỆN -->
+        <button
+          onclick="openReportModal()"
+          class="px-4 py-2.5 rounded-xl font-bold text-xs sm:text-sm flex items-center gap-1.5 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white shadow-md shadow-blue-500/20 transition"
+        >
+          <span>📋</span>
+          <span>Báo Họ Tên & Kết Quả</span>
+        </button>
+      </div>
+    </div>
+
+    <!-- Thanh nhắc nhở bắt buộc nhập Họ tên & Lớp -->
+    <div id="identityWarningBanner" class="bg-amber-50 border-t border-amber-200 px-4 py-1.5 text-center text-xs sm:text-sm font-semibold text-amber-800 hidden">
+      ⚠️ Bắt buộc: Em hãy nhập chính xác <b>Họ và tên</b> và <b>Lớp</b> ở góc trên cùng để mở khóa học từ vựng, làm trắc nghiệm và bình luận!
+    </div>
+  </header>
+
+  <!-- ================= BỐ CỤC CHÍNH (STUDIO HỌC TẬP HIỆN ĐẠI) ================= -->
+  <div class="max-w-7xl w-full mx-auto flex-1 grid grid-cols-1 lg:grid-cols-12 gap-6 px-4 py-5">
+
+    <!-- CỘT TRÁI (SIDEBAR): DANH SÁCH ĐẦY ĐỦ CÁC HỌC PHẦN UNIT & BÀI 10 -> 34 -->
+    <aside id="sidebarContainer" class="lg:col-span-4 xl:col-span-3 hidden lg:block">
+      <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden sticky top-24">
+        
+        <div class="p-4 bg-gradient-to-r from-slate-900 to-indigo-950 text-white">
+          <div class="flex items-center justify-between">
+            <h2 class="font-extrabold text-sm uppercase tracking-wider flex items-center gap-2">
+              📂 Danh Mục Bài Học
+            </h2>
+            <span class="text-[11px] bg-indigo-500/30 text-indigo-200 px-2 py-0.5 rounded-full border border-indigo-400/30 font-bold">
+              Đầy đủ 100%
+            </span>
+          </div>
+          <p class="text-xs text-slate-300 mt-1">
+            Chọn học phần Unit (từ file tải lên) hoặc chọn theo Bài học Vật lí (Bài 10 → 34).
+          </p>
+        </div>
+
+        <!-- Chuyển nhóm danh mục: Học phần Từ vựng Unit / Bài học 10 -> 34 -->
+        <div class="p-2 bg-slate-100 border-b border-slate-200 grid grid-cols-2 gap-1.5 text-xs font-extrabold">
+          <button
+            onclick="switchSidebarCategory('units')"
+            id="catBtnUnits"
+            class="py-2 rounded-xl bg-blue-600 text-white shadow-xs transition"
+          >
+            📘 Các Unit Tải Lên (7 Bộ)
+          </button>
+          <button
+            onclick="switchSidebarCategory('lessons')"
+            id="catBtnLessons"
+            class="py-2 rounded-xl bg-white text-slate-700 hover:bg-slate-50 border border-slate-200 transition"
+          >
+            📗 Bài 10 → Bài 34
+          </button>
+        </div>
+
+        <!-- Ô tìm kiếm nhanh bài học -->
+        <div class="p-2.5 bg-slate-50 border-b border-slate-200">
+          <input
+            id="sidebarSearchInput"
+            type="text"
+            oninput="renderSidebarList()"
+            placeholder="🔍 Tìm nhanh Unit hoặc Bài 10-34..."
+            class="w-full px-3 py-1.5 text-xs sm:text-sm bg-white border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500"
+          />
+        </div>
+
+        <!-- Danh sách nút bấm chọn bài học -->
+        <div id="sidebarListContainer" class="max-h-[64vh] overflow-y-auto p-3 space-y-2">
+          <!-- Render tự động bằng JS -->
+        </div>
+      </div>
+    </aside>
+
+    <!-- CỘT PHẢI (MAIN CONTENT): KHU VỰC HỌC TẬP, TRẮC NGHIỆM, TRA TỪ, PHẢN TƯ & BÌNH LUẬN FB -->
+    <main class="lg:col-span-8 xl:col-span-9 space-y-6">
+
+      <!-- Thanh thông tin Bài học đang chọn & 4 Tab chế độ học -->
+      <div class="bg-white rounded-2xl border border-slate-200 p-5 shadow-sm space-y-4">
+        <div class="flex flex-col md:flex-row md:items-center justify-between gap-3 border-b border-slate-100 pb-4">
+          <div>
+            <div class="flex flex-wrap items-center gap-2">
+              <span id="activeModuleTag" class="text-xs font-extrabold uppercase tracking-wider px-2.5 py-1 rounded-full bg-indigo-50 text-indigo-700 border border-indigo-200">
+                Unit 2 • Motion & Forces
+              </span>
+              <span id="activeModuleWordCount" class="text-xs font-bold px-2.5 py-1 rounded-full bg-blue-50 text-blue-700 border border-blue-200">
+                37 từ vựng
+              </span>
+              <span id="activeModuleCompletedChip" class="text-xs font-bold px-2.5 py-1 rounded-full bg-slate-100 text-slate-600">
+                ⏳ Chưa hoàn thành
+              </span>
+            </div>
+            <h2 id="activeModuleTitle" class="text-xl sm:text-2xl font-extrabold text-slate-900 mt-1.5">
+              Unit 2: Motion & Forces (Chuyển động & Lực)
+            </h2>
+            <p id="activeModuleDesc" class="text-sm text-slate-600 mt-0.5">
+              Rèn phản xạ 6 giây, luyện trắc nghiệm nhớ từ sâu và tra cứu phiên âm IPA chuẩn quốc tế.
+            </p>
+          </div>
+
+          <!-- Nút mở link BTVN nếu đang ở Bài 10 -> 34 -->
+          <div id="externalBtvnBox" class="hidden shrink-0">
+            <a
+              id="externalBtvnLink"
+              href="#"
+              target="_blank"
+              rel="noopener noreferrer"
+              class="px-4 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-extrabold text-xs sm:text-sm flex items-center gap-1.5 shadow-sm transition"
+            >
+              <span>🚀</span>
+              <span>Mở App BTVN Bài Này ↗</span>
+            </a>
+          </div>
+        </div>
+
+        <!-- 4 Nút chuyển chế độ học tập rõ ràng -->
+        <div class="flex flex-wrap items-center justify-between gap-2">
+          <div class="flex flex-wrap items-center gap-2">
+            <button
+              onclick="switchStudyMode('flashcard')"
+              id="modeBtn_flashcard"
+              class="px-4 py-2.5 rounded-xl font-extrabold text-xs sm:text-sm transition bg-blue-600 text-white shadow-sm flex items-center gap-1.5"
+            >
+              <span>⏱️</span>
+              <span>1. Phản Xạ 6 Giây (Flashcard)</span>
+            </button>
+            <button
+              onclick="switchStudyMode('quiz')"
+              id="modeBtn_quiz"
+              class="px-4 py-2.5 rounded-xl font-extrabold text-xs sm:text-sm transition bg-slate-100 text-slate-700 hover:bg-slate-200 flex items-center gap-1.5"
+            >
+              <span>🎯</span>
+              <span>2. Trắc Nghiệm Từ Vựng</span>
+            </button>
+            <button
+              onclick="switchStudyMode('dictionary')"
+              id="modeBtn_dictionary"
+              class="px-4 py-2.5 rounded-xl font-extrabold text-xs sm:text-sm transition bg-slate-100 text-slate-700 hover:bg-slate-200 flex items-center gap-1.5"
+            >
+              <span>🔎</span>
+              <span>3. Tra Cứu IPA & Đặt Câu (Unit 1–10)</span>
+            </button>
+            <button
+              onclick="switchStudyMode('list')"
+              id="modeBtn_list"
+              class="px-4 py-2.5 rounded-xl font-extrabold text-xs sm:text-sm transition bg-slate-100 text-slate-700 hover:bg-slate-200 flex items-center gap-1.5"
+            >
+              <span>📋</span>
+              <span>4. Bảng Đầy Đủ Từ Vựng</span>
+            </button>
+          </div>
+
+          <div id="studentStatusBadge" class="text-xs font-bold text-rose-600">
+            ⚠️ Chưa nhập Họ tên & Lớp
+          </div>
+        </div>
+      </div>
+
+      <!-- ======================================================================= -->
+      <!-- CHẾ ĐỘ 1: THẺ PHẢN XẠ 6 GIÂY + ĐẾM GIỜ (NÂNG CẤP TỪ CÁC FILE HTML GỐC) -->
+      <!-- ======================================================================= -->
+      <section id="viewMode_flashcard" class="bg-white rounded-2xl border border-slate-200 p-5 sm:p-6 shadow-sm space-y-5">
+        <div class="flex flex-wrap items-center justify-between gap-3">
+          <div>
+            <span class="text-xs font-extrabold uppercase tracking-wider text-blue-700 bg-blue-50 px-2.5 py-1 rounded-full border border-blue-200">
+              Chế độ Phản xạ 6 giây + Đếm giờ
+            </span>
+            <h3 class="text-base sm:text-lg font-extrabold text-slate-900 mt-1">
+              Nhẩm nhanh nghĩa của từ trước khi đồng hồ đếm về 0!
+            </h3>
+          </div>
+
+          <div class="flex flex-wrap items-center gap-2">
+            <span id="flashcardCounterText" class="text-xs font-extrabold px-3 py-1.5 rounded-xl bg-slate-100 text-slate-700">
+              Từ: 1 / 37
+            </span>
+            <button
+              onclick="shuffleCurrentFlashcards()"
+              class="px-3.5 py-1.5 rounded-xl bg-amber-50 hover:bg-amber-100 text-amber-800 border border-amber-200 font-bold text-xs transition"
+            >
+              🔀 Xáo trộn ngẫu nhiên
+            </button>
+          </div>
+        </div>
+
+        <!-- Khung Thẻ Lật & Đồng hồ 6 giây lớn rõ ràng -->
+        <div class="grid grid-cols-1 md:grid-cols-12 gap-4 items-stretch">
+          
+          <!-- Thẻ Từ Vựng Chính -->
+          <div
+            onclick="flipFlashcardAnswer()"
+            class="md:col-span-9 rounded-3xl bg-gradient-to-br from-slate-900 via-slate-800 to-indigo-950 text-white p-8 sm:p-10 shadow-xl flex flex-col items-center justify-center text-center min-h-[250px] cursor-pointer relative select-none transition transform hover:scale-[1.005]"
+          >
+            <div class="absolute top-4 left-4 flex items-center gap-2">
+              <span id="flashcardLangBadge" class="text-[11px] font-extrabold uppercase tracking-wider px-2.5 py-1 rounded-full bg-white/15 text-blue-200">
+                Tiếng Anh (EN)
+              </span>
+              <span id="flashcardIpaBadge" class="text-xs font-mono text-amber-300"></span>
+            </div>
+
+            <button
+              onclick="event.stopPropagation(); speakCurrentWord();"
+              class="absolute top-4 right-4 px-3 py-1.5 rounded-xl bg-white/15 hover:bg-white/25 text-white text-xs font-bold flex items-center gap-1.5 transition"
+              title="Nghe phát âm tiếng Anh"
+            >
+              <span>🔈</span>
+              <span>Phát âm EN</span>
+            </button>
+
+            <!-- Chữ hiển thị chính (To, rõ cho học sinh) -->
+            <div id="flashcardMainText" class="text-2xl sm:text-4xl font-extrabold tracking-tight leading-snug my-4 px-2">
+              kinematics
+            </div>
+
+            <!-- Đáp án nghĩa (Hiện tự động khi còn 1-2s hoặc khi bấm vào thẻ) -->
+            <div id="flashcardSubAnswer" class="mt-2 px-4 py-2 rounded-xl bg-emerald-500/20 border border-emerald-400/40 text-emerald-200 font-bold text-base sm:text-xl hidden animate-pop">
+              động học
+            </div>
+
+            <p class="text-[11px] text-slate-300 mt-4">
+              💡 Mẹo: Bấm trực tiếp vào thẻ để xem ngay đáp án hoặc chờ đồng hồ đếm ngược!
+            </p>
+          </div>
+
+          <!-- Cột Đồng Hồ Đếm Giờ 6s & Điều Khiển -->
+          <div class="md:col-span-3 bg-slate-50 rounded-3xl border border-slate-200 p-5 flex flex-col items-center justify-between text-center">
+            <div class="text-xs font-extrabold uppercase tracking-wider text-slate-500">
+              Đồng hồ 6 giây
+            </div>
+
+            <div id="flashcardTimerNumber" class="text-6xl sm:text-7xl font-black text-rose-600 my-3">
+              6
+            </div>
+
+            <div class="w-full space-y-2">
+              <button
+                onclick="toggleFlashcardTimer()"
+                id="btnPauseResumeTimer"
+                class="w-full py-2.5 px-3 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-extrabold text-xs sm:text-sm shadow-xs transition"
+              >
+                ⏸️ Tạm dừng đếm giờ
+              </button>
+              <div class="grid grid-cols-2 gap-1.5">
+                <button
+                  onclick="stepFlashcard(-1)"
+                  class="py-2 px-2 rounded-xl bg-white hover:bg-slate-100 text-slate-700 border border-slate-200 font-bold text-xs transition"
+                >
+                  ← Từ trước
+                </button>
+                <button
+                  onclick="stepFlashcard(1)"
+                  class="py-2 px-2 rounded-xl bg-white hover:bg-slate-100 text-slate-700 border border-slate-200 font-bold text-xs transition"
+                >
+                  Từ tiếp →
+                </button>
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </section>
+
+      <!-- ======================================================================= -->
+      <!-- CHẾ ĐỘ 2: TRẮC NGHIỆM TƯƠNG TÁC (ĐẢO CÂU HỎI & ĐÁP ÁN, CHẤM TỨC THÌ)    -->
+      <!-- ======================================================================= -->
+      <section id="viewMode_quiz" class="space-y-5 hidden">
+        <div class="bg-white rounded-2xl border border-slate-200 p-5 shadow-sm flex flex-wrap items-center justify-between gap-3">
+          <div>
+            <span class="text-xs font-extrabold uppercase tracking-wider text-indigo-700 bg-indigo-50 px-2.5 py-1 rounded-full border border-indigo-200">
+              Kiểm tra phản xạ Từ vựng (Đảo đề ngẫu nhiên)
+            </span>
+            <h3 class="text-base sm:text-lg font-extrabold text-slate-900 mt-1">
+              Tích chọn đáp án đúng — Hệ thống báo Đúng/Sai ngay lập tức!
+            </h3>
+          </div>
+
+          <div class="flex flex-wrap items-center gap-2.5">
+            <div id="quizScoreChip" class="px-3.5 py-2 rounded-xl bg-blue-50 text-blue-800 border border-blue-200 font-extrabold text-xs sm:text-sm">
+              Điểm lượt này: 0 / 15
+            </div>
+            <button
+              onclick="generateQuizForCurrentModule()"
+              class="px-4 py-2 rounded-xl bg-amber-50 hover:bg-amber-100 text-amber-800 border border-amber-200 font-extrabold text-xs sm:text-sm transition"
+            >
+              🔄 Đảo Đề Mới (15 câu)
+            </button>
+          </div>
+        </div>
+
+        <!-- Danh sách câu hỏi trắc nghiệm -->
+        <div id="quizQuestionsContainer" class="space-y-4">
+          <!-- Render bằng JS -->
+        </div>
+      </section>
+
+      <!-- ======================================================================= -->
+      <!-- CHẾ ĐỘ 3: TRA CỨU TỪ ĐIỂN IPA & LUYỆN VIẾT CÂU (TỪ FILE TỪ VỰNG.HTML)   -->
+      <!-- ======================================================================= -->
+      <section id="viewMode_dictionary" class="bg-white rounded-2xl border border-slate-200 p-5 sm:p-6 shadow-sm space-y-4 hidden">
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-slate-100 pb-3">
+          <div>
+            <span class="text-xs font-extrabold uppercase tracking-wider text-indigo-700 bg-indigo-50 px-2.5 py-0.5 rounded-full border border-indigo-200">
+              Mini-Game Chuyên Gia Từ Vựng (Unit 1 – 10)
+            </span>
+            <h3 class="text-base sm:text-lg font-extrabold text-slate-900 mt-1">
+              Tra cứu từ tiếng Anh / tiếng Việt (kèm Phiên âm IPA) & Luyện viết câu chuyên ngành
+            </h3>
+          </div>
+          <span class="text-xs font-bold text-slate-500">Tổng kho: 350+ thuật ngữ</span>
+        </div>
+
+        <!-- Khung Chat Tương Tác Chuyên Gia Vật Lí -->
+        <div id="vocabChatBox" class="h-80 overflow-y-auto rounded-2xl bg-slate-50 border border-slate-200 p-4 space-y-3">
+          <div class="max-w-[85%] bg-amber-100/90 text-slate-900 p-3.5 rounded-2xl rounded-bl-xs text-sm leading-relaxed border border-amber-200">
+            👋 Chào em! Thầy là <b>Trợ lý Chuyên gia Từ vựng Vật lí</b>. Em hãy nhập bất kỳ thuật ngữ tiếng Anh hoặc nghĩa tiếng Việt nào (VD: <i>kinematics, torque, cộng hưởng, điện trường, photon, đẳng nhiệt...</i>) để tra cứu phiên âm IPA và luyện đặt câu nhé!
+          </div>
+        </div>
+
+        <!-- Từ khóa gợi ý nhanh -->
+        <div class="flex flex-wrap items-center gap-1.5 text-xs">
+          <span class="font-bold text-slate-500">Thử tra nhanh:</span>
+          <button onclick="quickLookupWord('kinematics')" class="px-2.5 py-1 rounded-lg bg-slate-100 hover:bg-blue-50 hover:text-blue-700 font-semibold">kinematics</button>
+          <button onclick="quickLookupWord('torque')" class="px-2.5 py-1 rounded-lg bg-slate-100 hover:bg-blue-50 hover:text-blue-700 font-semibold">torque</button>
+          <button onclick="quickLookupWord('harmonic oscillation')" class="px-2.5 py-1 rounded-lg bg-slate-100 hover:bg-blue-50 hover:text-blue-700 font-semibold">harmonic oscillation</button>
+          <button onclick="quickLookupWord('isothermal process')" class="px-2.5 py-1 rounded-lg bg-slate-100 hover:bg-blue-50 hover:text-blue-700 font-semibold">isothermal process</button>
+          <button onclick="quickLookupWord('electric field')" class="px-2.5 py-1 rounded-lg bg-slate-100 hover:bg-blue-50 hover:text-blue-700 font-semibold">electric field</button>
+          <button onclick="quickLookupWord('photoelectric effect')" class="px-2.5 py-1 rounded-lg bg-slate-100 hover:bg-blue-50 hover:text-blue-700 font-semibold">photoelectric effect</button>
+        </div>
+
+        <!-- Ô nhập từ cần tra hoặc câu tiếng Anh tự đặt -->
+        <div class="flex gap-2">
+          <input
+            id="vocabChatInput"
+            type="text"
+            placeholder="Nhập từ tiếng Anh / tiếng Việt cần tra hoặc viết 1 câu có chứa từ vừa học..."
+            onkeydown="if(event.key==='Enter') handleVocabChatSubmit()"
+            class="flex-1 px-4 py-2.5 rounded-xl border border-slate-300 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+          />
+          <button
+            onclick="handleVocabChatSubmit()"
+            class="px-5 py-2.5 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-extrabold text-sm shadow-xs transition"
+          >
+            Gửi / Tra cứu
+          </button>
+        </div>
+      </section>
+
+      <!-- ======================================================================= -->
+      <!-- CHẾ ĐỘ 4: BẢNG DANH SÁCH ĐẦY ĐỦ TỪ VỰNG CỦA BÀI ĐANG CHỌN              -->
+      <!-- ======================================================================= -->
+      <section id="viewMode_list" class="bg-white rounded-2xl border border-slate-200 p-5 sm:p-6 shadow-sm space-y-4 hidden">
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+          <h3 class="text-base sm:text-lg font-extrabold text-slate-900">
+            📋 Bảng tổng hợp toàn bộ từ vựng trong bài này
+          </h3>
+          <input
+            id="tableFilterInput"
+            type="text"
+            oninput="renderVocabTable()"
+            placeholder="🔍 Lọc từ trong bảng..."
+            class="w-full sm:w-64 px-3 py-2 rounded-xl border border-slate-200 text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+          />
+        </div>
+
+        <div class="overflow-x-auto rounded-2xl border border-slate-200 max-h-[480px]">
+          <table class="w-full text-left border-collapse text-xs sm:text-sm">
+            <thead class="bg-slate-100 text-slate-700 sticky top-0">
+              <tr>
+                <th class="p-3 font-extrabold w-12 border-b border-slate-200">#</th>
+                <th class="p-3 font-extrabold border-b border-slate-200">Thuật ngữ Tiếng Anh (English)</th>
+                <th class="p-3 font-extrabold border-b border-slate-200">Phiên âm (IPA)</th>
+                <th class="p-3 font-extrabold border-b border-slate-200">Nghĩa Tiếng Việt (Vietnamese)</th>
+                <th class="p-3 font-extrabold w-24 text-center border-b border-slate-200">Nghe</th>
+              </tr>
+            </thead>
+            <tbody id="vocabTableBody" class="divide-y divide-slate-200">
+              <!-- Render bằng JS -->
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- ======================================================================= -->
+      <!-- HỘP PHẢN TƯ CUỐI BÀI TẬP (BẮT BUỘC TRƯỚC KHI CHO PHÉP BẤM HOÀN THÀNH)   -->
+      <!-- ======================================================================= -->
+      <section class="bg-white rounded-2xl border-2 border-indigo-200 p-5 sm:p-6 shadow-sm space-y-4">
+        <div class="flex items-start gap-3">
+          <div class="w-11 h-11 rounded-2xl bg-indigo-100 text-indigo-700 flex items-center justify-center text-xl font-bold shrink-0">
+            🤔
+          </div>
+          <div class="flex-1">
+            <div class="flex flex-wrap items-center justify-between gap-2">
+              <span class="text-xs font-extrabold uppercase tracking-wider text-indigo-700 bg-indigo-50 px-2.5 py-0.5 rounded-full border border-indigo-200">
+                Bước Phản Tư Bắt Buộc Cuối Bài
+              </span>
+              <span id="reflectionStatusBadge" class="text-xs font-bold text-rose-600">
+                * Bắt buộc ghi trước khi bấm Hoàn thành
+              </span>
+            </div>
+            <h3 class="text-base sm:text-lg font-extrabold text-slate-900 mt-1">
+              Câu hỏi phản tư trước khi hoàn thành:
+            </h3>
+            <p class="text-sm sm:text-base font-semibold text-indigo-950 mt-0.5">
+              "Hãy lọc ra điều em thấy <b>khó nhất</b> sau khi HỌC XONG các từ này là gì?" (Ví dụ: từ nào khó phát âm nhất, dễ nhầm nghĩa nhất...)
+            </p>
+          </div>
+        </div>
+
+        <textarea
+          id="reflectionTextarea"
+          rows="3"
+          oninput="handleReflectionChange()"
+          placeholder="Ví dụ: Em thấy các cặp từ như 'centripetal force' (lực hướng tâm) và 'centrifugal force' (lực ly tâm) hoặc 'transverse wave' và 'longitudinal wave' dễ nhầm lẫn nhất..."
+          class="w-full p-3.5 rounded-xl border border-slate-300 focus:outline-none focus:ring-2 focus:ring-indigo-500 text-sm sm:text-base bg-slate-50/70"
+        ></textarea>
+
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pt-1">
+          <p class="text-xs text-slate-500">
+            💡 Ghi lại từ khó nhớ nhất giúp bộ não khắc sâu gấp 3 lần và giúp thầy/cô hỗ trợ em ôn tập hiệu quả hơn!
+          </p>
+          <div class="flex flex-wrap items-center gap-2">
+            <button
+              onclick="shareReflectionToDiscussion()"
+              class="px-4 py-2.5 rounded-xl bg-indigo-50 hover:bg-indigo-100 text-indigo-700 font-bold text-xs sm:text-sm border border-indigo-200 transition"
+            >
+              💬Chia sẻ từ khó này lên Thảo luận lớp
+            </button>
+            <button
+              onclick="completeCurrentModule()"
+              class="px-5 py-3 rounded-xl font-extrabold text-xs sm:text-sm bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 text-white shadow-md shadow-emerald-500/20 transition flex items-center gap-2"
+            >
+              <span>✅</span>
+              <span>Hoàn Thành Bài Học & Báo Kết Quả</span>
+            </button>
+          </div>
+        </div>
+      </section>
+
+      <!-- ======================================================================= -->
+      <!-- KHU VỰC BÌNH LUẬN & THẢO LUẬN KIỂU FACEBOOK CHO TỪNG HỌC PHẦN           -->
+      <!-- ======================================================================= -->
+      <section class="bg-white rounded-2xl border border-slate-200 p-5 sm:p-6 shadow-sm space-y-4">
+        <div class="flex items-center justify-between border-b border-slate-100 pb-3">
+          <div class="flex items-center gap-2.5">
+            <span class="text-2xl">💬</span>
+            <div>
+              <h3 class="font-extrabold text-base sm:text-lg text-slate-900">
+                Thảo luận & Đặt câu Tiếng Anh Chuyên Ngành (Kiểu Facebook)
+              </h3>
+              <p class="text-xs text-slate-500">
+                Các em có thể bình luận mẹo nhớ từ, đăng câu tiếng Anh tự đặt hoặc thả cảm xúc tương tác với bạn bè.
+              </p>
+            </div>
+          </div>
+          <span id="moduleCommentCountBadge" class="text-xs font-bold px-3 py-1 rounded-full bg-blue-50 text-blue-700 border border-blue-200">
+            0 bình luận
+          </span>
+        </div>
+
+        <!-- Ô nhập bình luận mới -->
+        <div class="flex gap-3">
+          <div id="userCommentAvatar" class="w-10 h-10 rounded-full bg-gradient-to-br from-blue-600 to-indigo-600 text-white font-extrabold flex items-center justify-center shrink-0 text-sm">
+            HS
+          </div>
+          <div class="flex-1 space-y-2">
+            <textarea
+              id="moduleCommentInput"
+              rows="2"
+              placeholder="Viết bình luận, mẹo nhớ từ vựng hoặc đặt 1 câu tiếng Anh với từ trong bài này..."
+              class="w-full p-3 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm bg-slate-50"
+            ></textarea>
+            <div class="flex items-center justify-between">
+              <span class="text-[11px] text-slate-500">
+                Hãy thả 👍 Đồng cảm hoặc 💡 Góc nhìn hay cho các bình luận ấn tượng của bạn bè!
+              </span>
+              <button
+                onclick="postModuleComment()"
+                class="px-4 py-2 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs sm:text-sm shadow-xs transition"
+              >
+                Đăng bình luận
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Danh sách bình luận -->
+        <div id="moduleCommentsList" class="space-y-3 pt-2">
+          <!-- Render bằng JS -->
+        </div>
+      </section>
+
+    </main>
+  </div>
+
+  <!-- ================= MODAL BÁO HỌ TÊN & KẾT QUẢ THỰC HIỆN ================= -->
+  <div id="reportModal" class="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-sm hidden items-center justify-center p-4">
+    <div class="bg-white rounded-2xl max-w-lg w-full p-6 shadow-2xl border border-slate-200 animate-pop">
+      <div class="flex items-center justify-between border-b border-slate-100 pb-3">
+        <h3 class="font-extrabold text-lg text-slate-900 flex items-center gap-2">
+          📋 Phiếu Báo Họ Tên & Kết Quả Từ Vựng Vật Lí
+        </h3>
+        <button onclick="closeReportModal()" class="text-slate-400 hover:text-slate-600 text-xl font-bold">&times;</button>
+      </div>
+
+      <div id="reportTextSummary" class="mt-4 bg-slate-50 border border-slate-200 rounded-xl p-4 text-xs sm:text-sm space-y-2 font-medium text-slate-800 whitespace-pre-line max-h-80 overflow-y-auto">
+        <!-- Sinh tự động -->
+      </div>
+
+      <div id="reportReflectionWarning" class="mt-3 p-3 rounded-xl bg-amber-50 border border-amber-200 text-xs font-semibold text-amber-800 hidden">
+        ⚠️ Chú ý: Em chưa điền câu hỏi <b>Phản tư cuối bài</b> ("Điều em thấy khó nhất sau khi HỌC XONG các từ này là gì"). Hãy đóng hộp thoại và ghi phản tư rồi bấm nút <b>Hoàn thành</b> nhé!
+      </div>
+
+      <div class="mt-5 flex flex-wrap items-center justify-end gap-2">
+        <button onclick="closeReportModal()" class="px-4 py-2.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-xs sm:text-sm">
+          Đóng
+        </button>
+        <button
+          onclick="copyReportToClipboard()"
+          id="copyReportBtn"
+          class="px-5 py-2.5 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs sm:text-sm flex items-center gap-1.5 shadow-sm"
+        >
+          <span>📋</span>
+          <span>Sao chép Báo cáo gửi Zalo / Giáo viên</span>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ================= JAVASCRIPT XỬ LÝ TOÀN BỘ DỮ LIỆU & TƯƠNG TÁC ================= -->
+  <script>
+    /*************************************************************************
+     * 1. KHO DỮ LIỆU TỪ VỰNG CHUYÊN NGÀNH VẬT LÍ (TRÍCH XUẤT 100% TỪ CÁC FILE TẢI LÊN)
+     *************************************************************************/
+
+    // 1.1. Từ điển IPA chuẩn từ file "từ vựng.html" (Unit 1 - Unit 10)
+    const IPA_LOOKUP = {
+      "arithmetic": "[ə.ˈrɪθ.mə.tɪk]",
+      "algebra": "[ˈæl.dʒɪ.brə]",
+      "geometry": "[dʒi.ˈɑː.mə.tri]",
+      "calculus": "[ˈkæl.kjə.ləs]",
+      "theorem": "[ˈθɪ.rəm]",
+      "add": "[æd]",
+      "subtract": "[səb.ˈtrækt]",
+      "multiply": "[ˈmʌl.tɪ.plaɪ]",
+      "divide": "[dɪ.ˈvaɪd]",
+      "equation": "[ɪ.ˈkweɪ.ʒən]",
+      "derivative": "[dɪ.ˈrɪ.və.tɪv]",
+      "integral": "[ˈɪn.tə.ɡrəl]",
+      "kinematics": "[kɪ.nə.ˈmæ.tɪks]",
+      "reference frame": "[ˈre.frəns freɪm]",
+      "displacement": "[dɪs.ˈpleɪs.mənt]",
+      "velocity": "[və.ˈlɑː.sə.ti]",
+      "acceleration": "[ək.ˌse.lə.ˈreɪ.ʃən]",
+      "dynamics": "[daɪ.ˈnæ.mɪks]",
+      "force": "[fɔːrs]",
+      "gravitational force": "[ˌɡræ.vɪ.ˈteɪ.ʃə.nəl fɔːrs]",
+      "friction force": "[ˈfrɪk.ʃən fɔːrs]",
+      "centripetal force": "[sen.ˈtrɪ.pɪ.təl fɔːrs]",
+      "work": "[wɜːrk]",
+      "power": "[ˈpaʊ.ər]",
+      "mechanical energy": "[mə.ˈkæ.nɪ.kəl ˈe.nər.dʒi]",
+      "kinetic energy": "[kɪ.ˈne.tɪk ˈe.nər.dʒi]",
+      "potential energy": "[pə.ˈten.ʃəl ˈe.nər.dʒi]",
+      "momentum": "[moʊ.ˈmen.təm]",
+      "impulse": "[ˈɪm.pʌls]",
+      "collision": "[kə.ˈlɪ.ʒən]",
+      "isolated system": "[ˈaɪ.sə.leɪ.tɪd ˈsɪs.təm]",
+      "rigid object": "[ˈrɪ.dʒɪd ˈɑːb.dʒɪkt]",
+      "translational motion": "[trænz.ˈleɪ.ʃə.nəl ˈmoʊ.ʃən]",
+      "rotational motion": "[roʊ.ˈteɪ.ʃə.nəl ˈmoʊ.ʃən]",
+      "torque": "[tɔːrk]",
+      "angular momentum": "[ˈæŋ.ɡjə.lər moʊ.ˈmen.təm]",
+      "moment of inertia": "[ˈmoʊ.mənt əv ɪ.ˈnɜːr.ʃə]",
+      "equilibrium": "[ˌiː.kwə.ˈlɪ.bri.əm]",
+      "oscillate": "[ˈɑː.sə.leɪt]",
+      "harmonic oscillation": "[hɑːr.ˈmɑː.nɪk ˌɑː.sə.ˈleɪ.ʃən]",
+      "amplitude": "[ˈæm.plə.tuːd]",
+      "period": "[ˈpɪ.ri.əd]",
+      "frequency": "[ˈfriː.kwən.si]",
+      "mechanical wave": "[mə.ˈkæ.nɪ.kəl weɪv]",
+      "transverse wave": "[trænz.ˈvɜːrs weɪv]",
+      "longitudinal wave": "[ˌlɑːn.dʒə.ˈtuː.də.nəl weɪv]",
+      "sound wave": "[saʊnd weɪv]",
+      "thermal physics": "[ˈθɜːr.məl ˈfɪ.zɪks]",
+      "thermodynamics": "[ˌθɜːr.moʊ.daɪ.ˈnæ.mɪks]",
+      "temperature": "[ˈtem.prə.tʃər]",
+      "pressure": "[ˈpre.ʃər]",
+      "volume": "[ˈvɑːl.juːm]",
+      "heat": "[hiːt]",
+      "internal energy": "[ɪn.ˈtɜːr.nəl ˈe.nər.dʒi]",
+      "ideal gas": "[aɪ.ˈdiː.əl ɡæs]",
+      "electricity": "[ɪ.ˌlek.ˈtrɪ.sə.ti]",
+      "electric charge": "[ɪ.ˈlek.trɪk tʃɑːrdʒ]",
+      "electric field": "[ɪ.ˈlek.trɪk fiːld]",
+      "voltage": "[ˈvoʊl.tɪdʒ]",
+      "capacitor": "[kə.ˈpæ.sə.tər]",
+      "electric current": "[ɪ.ˈlek.trɪk ˈkɜːr.ənt]",
+      "resistor": "[rɪ.ˈzɪ.stər]",
+      "semiconductor": "[ˌse.mi.kən.ˈdʌk.tər]",
+      "magnetism": "[ˈmæɡ.nə.tɪ.zəm]",
+      "magnetic field": "[mæɡ.ˈne.tɪk fiːld]",
+      "electromagnetic induction": "[ɪ.ˌlek.troʊ.mæɡ.ˈne.tɪk ɪn.ˈdʌk.ʃən]",
+      "magnetic flux": "[mæɡ.ˈne.tɪk flʌks]",
+      "alternating current": "[ˈɔːl.tər.neɪ.tɪŋ ˈkɜːr.ənt]",
+      "transformer": "[træns.ˈfɔːr.mər]",
+      "electromagnetic wave": "[ɪ.ˌlek.troʊ.mæɡ.ˈne.tɪk weɪv]",
+      "optics": "[ˈɑːp.tɪks]",
+      "reflection": "[rɪ.ˈflek.ʃən]",
+      "refraction": "[rɪ.ˈfræk.ʃən]",
+      "lens": "[lenz]",
+      "interference of light": "[ˌɪn.tər.ˈfɪ.rəns əv laɪt]",
+      "diffraction": "[dɪ.ˈfræk.ʃən]",
+      "spectrum": "[ˈspek.trəm]",
+      "quantum optics": "[ˈkwɑːn.təm ˈɑːp.tɪks]",
+      "photon": "[ˈfoʊ.tɑːn]",
+      "photoelectric effect": "[ˌfoʊ.toʊ.ɪ.ˈlek.trɪk ɪ.ˈfekt]",
+      "nuclear physics": "[ˈnuː.kli.ər ˈfɪ.zɪks]",
+      "radioactivity": "[ˌreɪ.di.oʊ.æk.ˈtɪ.və.ti]",
+      "special relativity": "[ˈspe.ʃəl ˌre.lə.ˈtɪ.və.ti]",
+      "black hole": "[blæk hoʊl]"
+    };
+
+    // 1.2. Dữ liệu từ vựng chi tiết theo từng Unit từ các file tải lên
+    const VOCAB_UNIT_1_MATH = [
+      { en: "arithmetic", vi: "môn số học" }, { en: "algebra", vi: "môn đại số" },
+      { en: "geometry", vi: "môn hình học" }, { en: "calculus", vi: "môn giải tích" },
+      { en: "theorem", vi: "định lý" }, { en: "add", vi: "cộng" },
+      { en: "subtract", vi: "trừ" }, { en: "multiply", vi: "nhân" },
+      { en: "divide", vi: "chia" }, { en: "equation", vi: "phương trình" },
+      { en: "derivative", vi: "đạo hàm" }, { en: "integral", vi: "tích phân" }
+    ];
+
+    const VOCAB_UNIT_2 = [
+      { en: "kinematics", vi: "động học" }, { en: "kinematic", vi: "thuộc động học" },
+      { en: "reference frame", vi: "hệ quy chiếu" }, { en: "coordinate", vi: "tọa độ" },
+      { en: "coordinate system", vi: "hệ toạ độ" }, { en: "Cartesian coordinate", vi: "tọa độ Đềcác" },
+      { en: "polar coordinate", vi: "tọa độ cực" }, { en: "cylindrical coordinate", vi: "tọa độ trụ" },
+      { en: "spherical coordinate", vi: "tọa độ cầu" }, { en: "point mass", vi: "chất điểm" },
+      { en: "translational motion", vi: "chuyển động tịnh tiến" }, { en: "trajectory", vi: "quỹ đạo" },
+      { en: "linear motion", vi: "chuyển động thẳng" }, { en: "uniform linear motion", vi: "chuyển động thẳng đều" },
+      { en: "circular motion", vi: "chuyển động tròn" }, { en: "uniform circular motion", vi: "chuyển động tròn đều" },
+      { en: "displacement", vi: "độ dời (độ dịch chuyển)" }, { en: "distance", vi: "khoảng cách / quãng đường" },
+      { en: "second", vi: "giây" }, { en: "meter", vi: "mét" },
+      { en: "angular displacement", vi: "độ dời góc" }, { en: "speed", vi: "tốc độ" },
+      { en: "angular speed", vi: "tốc độ góc" }, { en: "velocity", vi: "vận tốc" },
+      { en: "angular velocity", vi: "vận tốc góc" }, { en: "acceleration", vi: "gia tốc" },
+      { en: "angular acceleration", vi: "gia tốc góc" }, { en: "average speed/velocity", vi: "tốc độ/vận tốc trung bình" },
+      { en: "average acceleration", vi: "gia tốc trung bình" }, { en: "instantaneous speed/velocity", vi: "tốc độ/vận tốc tức thời" },
+      { en: "centripetal acceleration", vi: "gia tốc hướng tâm" }, { en: "tangential acceleration", vi: "gia tốc tiếp tuyến" },
+      { en: "free fall", vi: "sự rơi tự do" }, { en: "dynamics", vi: "động lực học" },
+      { en: "force", vi: "lực" }, { en: "exert", vi: "tác dụng lực" },
+      { en: "deform", vi: "biến dạng" }, { en: "net force", vi: "hợp lực" },
+      { en: "gravitational force", vi: "lực hấp dẫn" }, { en: "weight", vi: "trọng lượng" },
+      { en: "inertia", vi: "quán tính" }, { en: "friction force", vi: "lực ma sát" },
+      { en: "normal force", vi: "phản lực" }, { en: "tension", vi: "lực căng dây" },
+      { en: "elastic force", vi: "lực đàn hồi" }, { en: "spring", vi: "lò xo" },
+      { en: "centripetal force", vi: "lực hướng tâm" }, { en: "centrifugal force", vi: "lực ly tâm" },
+      { en: "projectile motion", vi: "chuyển động ném" }, { en: "range", vi: "tầm xa" },
+      { en: "maximum height", vi: "độ cao tối đa" }
+    ];
+
+    const VOCAB_UNIT_3 = [
+      { en: "work", vi: "công" }, { en: "power", vi: "công suất" },
+      { en: "mechanical energy", vi: "cơ năng" }, { en: "kinetic energy", vi: "động năng" },
+      { en: "potential energy", vi: "thế năng" }, { en: "gravitational potential energy", vi: "thế năng trọng trường" },
+      { en: "elastic potential energy", vi: "thế năng đàn hồi" }, { en: "momentum", vi: "động lượng" },
+      { en: "impulse", vi: "xung lực" }, { en: "collide", vi: "va chạm" },
+      { en: "collision", vi: "sự va chạm" }, { en: "elastic collision", vi: "va chạm đàn hồi" },
+      { en: "inelastic collision", vi: "va chạm không đàn hồi" }, { en: "head-on collision", vi: "va chạm trực diện" },
+      { en: "off-center collision", vi: "va chạm không xuyên tâm" }, { en: "isolated system", vi: "hệ cô lập" },
+      { en: "explode", vi: "nổ" }, { en: "explosion", vi: "sự nổ" },
+      { en: "internal force", vi: "nội lực" }, { en: "external force", vi: "ngoại lực" },
+      { en: "conserve", vi: "bảo toàn" }, { en: "conservation", vi: "sự bảo toàn" },
+      { en: "conservation law", vi: "định luật bảo toàn" }, { en: "conservation of momentum", vi: "sự bảo toàn động lượng" },
+      { en: "conservation of energy", vi: "sự bảo toàn năng lượng" }, { en: "conservative force", vi: "lực bảo toàn (lực thế)" },
+      { en: "work-kinetic energy theorem", vi: "định lý động năng" }
+    ];
+
+    const VOCAB_UNIT_4 = [
+      { en: "rigid object", vi: "vật rắn" }, { en: "solid object", vi: "vật rắn làm bằng chất rắn" },
+      { en: "sphere", vi: "hình cầu" }, { en: "hollow sphere", vi: "hình cầu rỗng" },
+      { en: "cylinder", vi: "hình trụ đặc" }, { en: "hoop", vi: "hình trụ rỗng" },
+      { en: "disk", vi: "hình đĩa" }, { en: "rod", vi: "thanh thẳng" },
+      { en: "center of mass", vi: "khối tâm" }, { en: "center of gravity", vi: "trọng tâm" },
+      { en: "translational motion", vi: "chuyển động tịnh tiến" }, { en: "rotational motion", vi: "chuyển động quay" },
+      { en: "rotate", vi: "quay" }, { en: "spin", vi: "quay (tự quay)" },
+      { en: "torque", vi: "mômen lực" }, { en: "moment of force", vi: "mômen lực" },
+      { en: "clockwise", vi: "cùng chiều kim đồng hồ" }, { en: "counter-clockwise", vi: "ngược chiều kim đồng hồ" },
+      { en: "angular momentum", vi: "mômen động lượng" }, { en: "moment of inertia", vi: "mômen quán tính" },
+      { en: "rotational inertia", vi: "quán tính quay" }, { en: "balance", vi: "cân bằng / cái cân đòn" },
+      { en: "lever", vi: "đòn bẩy" }, { en: "lever arm", vi: "cánh tay đòn" },
+      { en: "fulcrum", vi: "điểm tựa" }, { en: "equilibrium", vi: "trạng thái cân bằng" },
+      { en: "static equilibrium", vi: "cân bằng tĩnh" }, { en: "base", vi: "mặt chân đế" },
+      { en: "stable", vi: "bền vững" }, { en: "stabilize", vi: "làm cho bền vững" },
+      { en: "stable equilibrium", vi: "cân bằng bền" }, { en: "unstable equilibrium", vi: "cân bằng không bền" },
+      { en: "neutral equilibrium", vi: "cân bằng phiếm định" }, { en: "force couple", vi: "ngẫu lực" },
+      { en: "precess", vi: "tiến động" }, { en: "precession", vi: "sự tiến động" }
+    ];
+
+    const VOCAB_UNIT_5 = [
+      { en: "oscillate", vi: "dao động" }, { en: "vibrate", vi: "dao động" },
+      { en: "oscillation", vi: "sự dao động" }, { en: "vibration", vi: "sự dao động" },
+      { en: "oscillator", vi: "vật dao động, dao động tử" }, { en: "oscilloscope", vi: "dao động ký điện tử" },
+      { en: "equation of oscillation", vi: "phương trình dao động" }, { en: "periodic oscillation", vi: "dao động tuần hoàn" },
+      { en: "harmonic oscillation", vi: "dao động điều hòa" }, { en: "harmonic oscillator", vi: "dao động tử điều hòa" },
+      { en: "free oscillation", vi: "dao động tự do" }, { en: "damped oscillation", vi: "dao động tắt dần" },
+      { en: "forced oscillation", vi: "dao động cưỡng bức" }, { en: "amplitude", vi: "biên độ" },
+      { en: "period", vi: "chu kỳ" }, { en: "frequency", vi: "tần số" },
+      { en: "angular frequency", vi: "tần số góc" }, { en: "phase", vi: "pha" },
+      { en: "in phase", vi: "cùng pha" }, { en: "out of phase", vi: "lệch pha" },
+      { en: "pendulum", vi: "con lắc" }, { en: "simple pendulum", vi: "con lắc đơn" },
+      { en: "spring-mass system", vi: "con lắc lò xo" }, { en: "resonate", vi: "cộng hưởng" },
+      { en: "resonance", vi: "hiện tượng cộng hưởng" }, { en: "resonance frequency", vi: "tần số cộng hưởng" },
+      { en: "mechanical wave", vi: "sóng cơ" }, { en: "transverse wave", vi: "sóng ngang" },
+      { en: "longitudinal wave", vi: "sóng dọc" }, { en: "wavelength", vi: "bước sóng" },
+      { en: "wavefront", vi: "mặt đầu sóng" }, { en: "crest", vi: "đỉnh sóng" },
+      { en: "trough", vi: "đáy sóng" }, { en: "coherent waves", vi: "các sóng kết hợp" },
+      { en: "interfere", vi: "giao thoa" }, { en: "interference", vi: "sự giao thoa" },
+      { en: "standing wave", vi: "sóng dừng" }, { en: "node", vi: "nút sóng" },
+      { en: "anti-node", vi: "bụng sóng" }, { en: "wave packet", vi: "bó sóng" },
+      { en: "reflect", vi: "phản xạ" }, { en: "reflection", vi: "sự phản xạ" },
+      { en: "refract", vi: "khúc xạ" }, { en: "refraction", vi: "sự khúc xạ" },
+      { en: "diffract", vi: "nhiễu xạ" }, { en: "diffraction", vi: "sự nhiễu xạ" },
+      { en: "acoustics", vi: "âm học" }, { en: "sound wave", vi: "sóng âm" },
+      { en: "infrasound", vi: "hạ âm" }, { en: "ultrasound", vi: "siêu âm" },
+      { en: "pitch", vi: "độ cao của âm" }, { en: "loudness", vi: "độ to của âm" },
+      { en: "sound intensity", vi: "cường độ âm" }, { en: "sound intensity level", vi: "mức cường độ âm" },
+      { en: "threshold of hearing", vi: "ngưỡng nghe" }, { en: "threshold of pain", vi: "ngưỡng đau" },
+      { en: "beat", vi: "phách" }, { en: "timbre", vi: "âm sắc" }
+    ];
+
+    const VOCAB_UNIT_6 = [
+      { en: "atom", vi: "nguyên tử" }, { en: "molecule", vi: "phân tử" },
+      { en: "molecular physics", vi: "vật lý phân tử" }, { en: "thermal physics", vi: "nhiệt học" },
+      { en: "thermodynamics", vi: "nhiệt động lực học" }, { en: "Brownian motion", vi: "chuyển động Brown" },
+      { en: "thermal agitation", vi: "chuyển động nhiệt" }, { en: "Avogadro number", vi: "số Avogadro" },
+      { en: "mole", vi: "mol" }, { en: "molar mass", vi: "khối lượng mol" },
+      { en: "temperature", vi: "nhiệt độ" }, { en: "absolute temperature", vi: "nhiệt độ tuyệt đối" },
+      { en: "temperature scale", vi: "thang nhiệt độ" }, { en: "Celsius scale", vi: "nhiệt giai Celsius" },
+      { en: "Celsius degree centigrade", vi: "độ bách phân" }, { en: "Fahrenheit scale", vi: "nhiệt giai Fahrenheit" },
+      { en: "Kelvin scale", vi: "nhiệt giai Kelvin" }, { en: "thermometer", vi: "nhiệt kế" },
+      { en: "pressure", vi: "áp suất" }, { en: "barometer", vi: "áp kế" },
+      { en: "manometer", vi: "áp kế" }, { en: "pressure gauge", vi: "dụng cụ đo áp suất" },
+      { en: "atmosphere", vi: "khí quyển" }, { en: "atmospheric pressure", vi: "áp suất khí quyển" },
+      { en: "volume", vi: "thể tích" }, { en: "standard conditions", vi: "điều kiện tiêu chuẩn" },
+      { en: "kinetic theory", vi: "thuyết động học phân tử" }, { en: "speed distribution", vi: "phân bố tốc độ" },
+      { en: "root-mean-square speed", vi: "tốc độ căn trung bình bình phương" }, { en: "most probable speed", vi: "tốc độ có xác suất cực đại" },
+      { en: "reservoir", vi: "hệ điều nhiệt" }, { en: "gas", vi: "chất khí" },
+      { en: "gasify", vi: "khí hóa" }, { en: "gaseous", vi: "thuộc thể khí" },
+      { en: "liquid", vi: "chất lỏng" }, { en: "liquefy", vi: "làm hóa lỏng" },
+      { en: "solid", vi: "chất rắn" }, { en: "solidify", vi: "làm hóa rắn" },
+      { en: "phase change", vi: "sự chuyển pha" }, { en: "critical point", vi: "điểm tới hạn" },
+      { en: "three-point", vi: "điểm ba" }, { en: "evaporate", vi: "bay hơi" },
+      { en: "evaporation", vi: "sự bay hơi" }, { en: "sublimation", vi: "sự thăng hoa" },
+      { en: "sublimate", vi: "thăng hoa" }, { en: "vaporize", vi: "làm bay hơi" },
+      { en: "vaporization", vi: "sự bay hơi" }, { en: "humid", vi: "ẩm ướt" },
+      { en: "absolute humidity", vi: "độ ẩm tuyệt đối" }, { en: "maximum humidity", vi: "độ ẩm cực đại" },
+      { en: "relative humidity", vi: "độ ẩm tương đối" }, { en: "fog", vi: "sương mù" },
+      { en: "dew", vi: "sương" }, { en: "dew point", vi: "điểm sương" },
+      { en: "boiling", vi: "sự sôi" }, { en: "boiling point", vi: "điểm sôi" },
+      { en: "steam", vi: "hơi nước" }, { en: "condense", vi: "làm ngưng tụ" },
+      { en: "condensation", vi: "sự ngưng tụ" }, { en: "freeze", vi: "đông đặc" },
+      { en: "freezing", vi: "sự đông đặc" }, { en: "freezing point", vi: "điểm đông đặc" },
+      { en: "melt", vi: "nóng chảy" }, { en: "melting", vi: "sự nóng chảy" },
+      { en: "melting point", vi: "điểm nóng chảy" }, { en: "heat", vi: "nhiệt lượng" },
+      { en: "internal energy", vi: "nội năng" }, { en: "heat capacity", vi: "nhiệt dung" },
+      { en: "specific heat capacity", vi: "nhiệt dung riêng" }, { en: "latent heat of fusion", vi: "nhiệt nóng chảy" },
+      { en: "latent heat of evaporation", vi: "nhiệt hóa hơi" }, { en: "thermal expansion", vi: "sự nở vì nhiệt" },
+      { en: "coefficient of thermal expansion", vi: "hệ số nở vì nhiệt" }, { en: "thermal conduction", vi: "sự dẫn nhiệt" },
+      { en: "thermal insulation", vi: "sự cách nhiệt" }, { en: "convection", vi: "sự đối lưu" },
+      { en: "radiate", vi: "bức xạ" }, { en: "radiation", vi: "sự bức xạ" },
+      { en: "thermal radiation", vi: "bức xạ nhiệt" }, { en: "absorb", vi: "hấp thụ" },
+      { en: "absorption", vi: "sự hấp thụ" }, { en: "thermal equilibrium", vi: "trạng thái cân bằng nhiệt" },
+      { en: "ideal gas", vi: "khí lý tưởng" }, { en: "real gas", vi: "khí thực" },
+      { en: "isothermal process", vi: "quá trình đẳng nhiệt" }, { en: "isotherm", vi: "đường đẳng nhiệt" },
+      { en: "isobaric process", vi: "quá trình đẳng áp" }, { en: "isobar", vi: "đường đẳng áp" },
+      { en: "isochoric process", vi: "quá trình đẳng tích" }, { en: "isochor", vi: "đường đẳng tích" },
+      { en: "adiabatic process", vi: "quá trình đoạn nhiệt" }, { en: "combustion", vi: "sự cháy" },
+      { en: "internal combustion engine", vi: "động cơ đốt trong" }, { en: "submerge", vi: "nhấn chìm" },
+      { en: "buoyancy", vi: "sự nổi" }, { en: "buoyant force", vi: "lực nổi (lực đẩy Archimedes)" },
+      { en: "hydrophilic", vi: "có tính dính ướt" }, { en: "hydrophilicity", vi: "tính dính ướt" },
+      { en: "hydrophobic", vi: "có tính không dính ướt" }, { en: "hydrophobicity", vi: "tính không dính ướt" },
+      { en: "capillary", vi: "tính mao dẫn" }, { en: "surface tension", vi: "lực căng mặt ngoài" },
+      { en: "coefficient of surface tension", vi: "hệ số căng mặt ngoài" }, { en: "diffuse", vi: "khuếch tán" },
+      { en: "diffusion", vi: "sự khuếch tán" }, { en: "crystal", vi: "tinh thể" },
+      { en: "lattice", vi: "mạng tinh thể" }, { en: "crystalline solid", vi: "chất rắn kết tinh" },
+      { en: "amorphous solid", vi: "chất rắn vô định hình" }, { en: "thermocouple", vi: "cặp nhiệt điện" }
+    ];
+
+    const VOCAB_UNIT_7 = [
+      { en: "electricity", vi: "điện học" }, { en: "electrostatics", vi: "tĩnh điện học" },
+      { en: "electrostatic", vi: "thuộc về tĩnh điện học" }, { en: "electric charge", vi: "điện tích" },
+      { en: "point charge", vi: "điện tích điểm" }, { en: "charge", vi: "tích điện" },
+      { en: "discharge", vi: "phóng điện" }, { en: "corona discharge", vi: "sự phóng điện hoa" },
+      { en: "spark", vi: "tia lửa điện" }, { en: "charging by contact", vi: "nhiễm điện do tiếp xúc" },
+      { en: "charging by rubbing", vi: "nhiễm điện do cọ xát" }, { en: "charging by induction", vi: "nhiễm điện do hưởng ứng" },
+      { en: "positively charged", vi: "nhiễm điện dương" }, { en: "negatively charged", vi: "nhiễm điện âm" },
+      { en: "neutral", vi: "trung hòa về điện" }, { en: "electrostatic induction", vi: "sự hưởng ứng tĩnh điện" },
+      { en: "conductor", vi: "vật dẫn điện" }, { en: "neutralize", vi: "làm cho trung hòa điện" },
+      { en: "grounded / earthed", vi: "được nối đất" }, { en: "test charge", vi: "điện tích thử" },
+      { en: "insulator", vi: "vật cách điện" }, { en: "electroscope", vi: "điện nghiệm" },
+      { en: "electric force", vi: "lực điện" }, { en: "repulsive force", vi: "lực đẩy" },
+      { en: "attractive force", vi: "lực hút" }, { en: "dielectric", vi: "chất điện môi" },
+      { en: "electric constant", vi: "hằng số điện" }, { en: "dielectric constant", vi: "hằng số điện môi" },
+      { en: "conservation of charge", vi: "bảo toàn điện tích" }, { en: "electric field", vi: "điện trường" },
+      { en: "line of force", vi: "đường sức" }, { en: "electric field line", vi: "đường sức điện" },
+      { en: "electric field strength", vi: "cường độ điện trường" }, { en: "uniform electric field", vi: "điện trường đều" },
+      { en: "superposition principle", vi: "nguyên lý chồng chất" }, { en: "polarization", vi: "sự phân cực" },
+      { en: "electric dipole", vi: "lưỡng cực điện" }, { en: "electric potential", vi: "điện thế" },
+      { en: "voltage", vi: "hiệu điện thế" }, { en: "electric potential energy", vi: "thế năng tĩnh điện" },
+      { en: "capacitor", vi: "tụ điện" }, { en: "resistor", vi: "điện trở" },
+      { en: "ammeter", vi: "ampe kế" }, { en: "voltmeter", vi: "vôn kế" },
+      { en: "electric current", vi: "dòng điện" }, { en: "semiconductor", vi: "chất bán dẫn" }
+    ];
+
+    const VOCAB_UNIT_8_9_10 = [
+      { en: "magnetism", vi: "từ học" }, { en: "magnetic field", vi: "từ trường" },
+      { en: "electromagnetic induction", vi: "cảm ứng điện từ" }, { en: "magnetic flux", vi: "từ thông" },
+      { en: "alternating current", vi: "dòng điện xoay chiều" }, { en: "transformer", vi: "máy biến thế" },
+      { en: "electromagnetic wave", vi: "sóng điện từ" }, { en: "optics", vi: "quang học" },
+      { en: "reflection", vi: "sự phản xạ" }, { en: "refraction", vi: "sự khúc xạ" },
+      { en: "lens", vi: "thấu kính" }, { en: "interference of light", vi: "sự giao thoa ánh sáng" },
+      { en: "diffraction", vi: "sự nhiễu xạ" }, { en: "spectrum", vi: "quang phổ" },
+      { en: "quantum optics", vi: "quang lượng tử" }, { en: "photon", vi: "lượng tử ánh sáng" },
+      { en: "photoelectric effect", vi: "hiệu ứng quang điện" }, { en: "nuclear physics", vi: "vật lý hạt nhân" },
+      { en: "radioactivity", vi: "hiện tượng phóng xạ" }, { en: "special relativity", vi: "thuyết tương đối hẹp" },
+      { en: "black hole", vi: "lỗ đen" }
+    ];
+
+    // Gộp tổng hợp tất cả các từ (Không trùng lặp)
+    const ALL_COMBINED_WORDS = [];
+    const seenEn = new Set();
+    [
+      ...VOCAB_UNIT_1_MATH,
+      ...VOCAB_UNIT_2,
+      ...VOCAB_UNIT_3,
+      ...VOCAB_UNIT_4,
+      ...VOCAB_UNIT_5,
+      ...VOCAB_UNIT_6,
+      ...VOCAB_UNIT_7,
+      ...VOCAB_UNIT_8_9_10
+    ].forEach(w => {
+      const key = w.en.toLowerCase();
+      if (!seenEn.has(key)) {
+        seenEn.add(key);
+        ALL_COMBINED_WORDS.push({
+          en: w.en,
+          vi: w.vi,
+          ipa: IPA_LOOKUP[w.en.toLowerCase()] || ''
+        });
+      }
+    });
+
+    function enrichWithIpa(list) {
+      return list.map(item => ({
+        en: item.en,
+        vi: item.vi,
+        ipa: IPA_LOOKUP[item.en.toLowerCase()] || ''
+      }));
+    }
+
+    /*************************************************************************
+     * 2. DANH MỤC HỌC PHẦN: 8 BỘ UNIT TẢI LÊN + CÁC BÀI HỌC TỪ BÀI 10 ĐẾN BÀI 34
+     *************************************************************************/
+    const MODULES_DATA = [
+      // === NHÓM 1: 8 HỌC PHẦN TỪ CÁC FILE HTML TẢI LÊN ===
+      {
+        id: 'unit-2',
+        group: 'units',
+        badge: 'File: UNIT 2.html',
+        title: 'Unit 2: Motion & Forces (Chuyển động & Lực)',
+        desc: 'Trọn bộ từ vựng Động học (Kinematics) và Động lực học (Dynamics) từ tệp UNIT 2.html.',
+        words: enrichWithIpa(VOCAB_UNIT_2)
+      },
+      {
+        id: 'unit-3-4',
+        group: 'units',
+        badge: 'File: UNIT 3,4.HTML',
+        title: 'Unit 3 & 4: Work, Energy & Rigid Objects',
+        desc: 'Từ vựng Công, Năng lượng, Động lượng và Cơ học vật rắn từ tệp UNIT 3,4.HTML.',
+        words: enrichWithIpa([...VOCAB_UNIT_3, ...VOCAB_UNIT_4])
+      },
+      {
+        id: 'unit-5',
+        group: 'units',
+        badge: 'File: on_tap_unit5.html',
+        title: 'Unit 5: Oscillation & Waves (Dao động & Sóng)',
+        desc: 'Đầy đủ 58 từ vựng Dao động điều hòa, Sóng cơ và Âm học từ tệp on_tap_unit5.html.',
+        words: enrichWithIpa(VOCAB_UNIT_5)
+      },
+      {
+        id: 'unit-2-5',
+        group: 'units',
+        badge: 'File: Unit 2 - 5.html',
+        title: 'Ôn Tập Đầy Đủ Unit 2 – 5 (157 Từ Vựng Cơ Học)',
+        desc: 'Tổng hợp toàn bộ 157 thuật ngữ từ Unit 2 đến Unit 5 theo đúng tệp Unit 2 - 5.html.',
+        words: enrichWithIpa([...VOCAB_UNIT_2, ...VOCAB_UNIT_3, ...VOCAB_UNIT_4, ...VOCAB_UNIT_5])
+      },
+      {
+        id: 'unit-3-4-5',
+        group: 'units',
+        badge: 'File: unit 345.html',
+        title: 'Ôn Tập Full Unit 3, 4, 5 (120 Từ Vựng)',
+        desc: 'Hệ thống 120 từ vựng trọng tâm của Unit 3, Unit 4 và Unit 5 từ tệp unit 345.html.',
+        words: enrichWithIpa([...VOCAB_UNIT_3, ...VOCAB_UNIT_4, ...VOCAB_UNIT_5])
+      },
+      {
+        id: 'unit-6',
+        group: 'units',
+        badge: 'File: UNIT 6.html',
+        title: 'Unit 6: Thermal Physics & Thermodynamics (110 Từ)',
+        desc: 'Toàn bộ từ vựng Vật lí phân tử, Nhiệt học, Chất khí, Chất rắn, Chất lỏng từ tệp UNIT 6.html.',
+        words: enrichWithIpa(VOCAB_UNIT_6)
+      },
+      {
+        id: 'unit-7',
+        group: 'units',
+        badge: 'File: Unit 7.html',
+        title: 'Unit 7: Electricity & Electrostatics (46 Từ)',
+        desc: 'Từ vựng Điện học, Tĩnh điện học, Điện trường, Điện thế và Tụ điện từ tệp Unit 7.html.',
+        words: enrichWithIpa(VOCAB_UNIT_7)
+      },
+      {
+        id: 'tong-hop-all',
+        group: 'units',
+        badge: 'File: TỔNG HỢP.HTML & từ vựng.html',
+        title: 'Ôn Tập Tổng Hợp Unit 1 – 10 (Toàn Bộ 350+ Từ)',
+        desc: 'Tổng hợp toàn bộ từ vựng từ Unit 1 đến Unit 10 kèm phiên âm IPA từ tệp TỔNG HỢP.HTML và từ vựng.html.',
+        words: ALL_COMBINED_WORDS
+      },
+
+      // === NHÓM 2: CÁC BÀI HỌC TỪ BÀI 10 ĐẾN BÀI 34 (KÈM TỪ VỰNG CHUYÊN NGÀNH TƯƠNG ỨNG) ===
+      {
+        id: 'bai-10',
+        group: 'lessons',
+        badge: 'Tuần 10 • Tiết 1',
+        title: 'Bài 10: Sự rơi tự do (Free Fall & Kinematics)',
+        desc: 'Từ vựng chuyên ngành phục vụ Bài 10: free fall, acceleration, velocity, displacement, trajectory...',
+        btvnUrl: 'https://physicsist.github.io/VAT-LI-10-BTVN/',
+        words: enrichWithIpa(VOCAB_UNIT_2.slice(0, 26))
+      },
+      {
+        id: 'bai-11',
+        group: 'lessons',
+        badge: 'Tuần 10 • Tiết 2',
+        title: 'Bài 11: Thực hành đo gia tốc rơi tự do',
+        desc: 'Thuật ngữ thực hành đo tốc độ, gia tốc rơi tự do và hệ quy chiếu.',
+        btvnUrl: 'https://physicsist.github.io/VAT-LI-10-BTVN-Bai11/',
+        words: enrichWithIpa(VOCAB_UNIT_2.slice(10, 35))
+      },
+      {
+        id: 'bai-12',
+        group: 'lessons',
+        badge: 'Tuần 11 • Tiết 1',
+        title: 'Bài 12: Chuyển động ném (Projectile Motion)',
+        desc: 'Từ vựng chuyên ngành chuyển động ném: projectile motion, range, maximum height, trajectory...',
+        btvnUrl: 'https://physicsist.github.io/VAT-LI-10-BTVN-bai12/',
+        words: enrichWithIpa(VOCAB_UNIT_2.slice(20, 51))
+      },
+      {
+        id: 'bai-13',
+        group: 'lessons',
+        badge: 'Tuần 11 • Tiết 2',
+        title: 'Bài 13: Tổng hợp và phân tích lực. Cân bằng lực',
+        desc: 'Từ vựng Động lực học: force, net force, equilibrium, exert, deform...',
+        btvnUrl: 'https://physicsist.github.io/VAT-LI-10-BTVN-Bai13/',
+        words: enrichWithIpa([...VOCAB_UNIT_2.slice(30, 51), ...VOCAB_UNIT_4.slice(20, 32)])
+      },
+      {
+        id: 'bai-14',
+        group: 'lessons',
+        badge: 'Tuần 12 • Tiết 1',
+        title: 'Bài 14: Định luật 1 Newton (Inertia & Motion)',
+        desc: 'Thuật ngữ Quán tính (inertia), hệ quy chiếu (reference frame) và chuyển động thẳng đều.',
+        btvnUrl: 'https://physicsist.github.io/VAT-LI-10-BTVN-Bai14/',
+        words: enrichWithIpa(VOCAB_UNIT_2)
+      },
+      {
+        id: 'bai-15',
+        group: 'lessons',
+        badge: 'Tuần 12 • Tiết 2',
+        title: 'Bài 15: Định luật 2 Newton (Force & Acceleration)',
+        desc: 'Thuật ngữ Lực, Khối lượng, Gia tốc và Động lực học (Dynamics).',
+        btvnUrl: 'https://physicsist.github.io/VAT-LI-10-BTVN-Bai15/',
+        words: enrichWithIpa(VOCAB_UNIT_2.slice(22, 51))
+      },
+      {
+        id: 'bai-16',
+        group: 'lessons',
+        badge: 'Tuần 13 • Tiết 1',
+        title: 'Bài 16: Định luật 3 Newton (Interaction Forces)',
+        desc: 'Thuật ngữ tương tác lực, nội lực (internal force), ngoại lực (external force) và phản lực.',
+        btvnUrl: 'https://physicsist.github.io/VAT-LI-10-BTVN-Bai16/',
+        words: enrichWithIpa([...VOCAB_UNIT_2.slice(32, 51), ...VOCAB_UNIT_3.slice(15, 25)])
+      },
+      {
+        id: 'bai-17',
+        group: 'lessons',
+        badge: 'Tuần 13 • Tiết 2',
+        title: 'Bài 17: Trọng lực và lực căng (Weight & Tension)',
+        desc: 'Thuật ngữ: gravitational force, weight, tension, center of gravity, normal force...',
+        btvnUrl: 'https://physicsist.github.io/VAT-LI-10-BTVN-Bai17/',
+        words: enrichWithIpa([...VOCAB_UNIT_2.slice(33, 51), ...VOCAB_UNIT_4.slice(8, 15)])
+      },
+      {
+        id: 'bai-18',
+        group: 'lessons',
+        badge: 'Tuần 14 • Tiết 1',
+        title: 'Bài 18: Lực ma sát (Friction Force)',
+        desc: 'Thuật ngữ chuyên ngành về Lực ma sát, phản lực pháp tuyến và chuyển động trên mặt phẳng.',
+        btvnUrl: 'https://physicsist.github.io/VAT-LI-10-BTVN-Bai18/',
+        words: enrichWithIpa(VOCAB_UNIT_2.slice(30, 51))
+      },
+      {
+        id: 'bai-19',
+        group: 'lessons',
+        badge: 'Tuần 14 • Tiết 2',
+        title: 'Bài 19: Lực cản và lực nâng (Buoyancy & Drag)',
+        desc: 'Thuật ngữ lực nổi (buoyant force), sự nổi (buoyancy), chất lưu (liquid, gas)...',
+        btvnUrl: 'https://physicsist.github.io/VAT-LI-10-BTVN-Bai19/',
+        words: enrichWithIpa([...VOCAB_UNIT_6.slice(90, 105), ...VOCAB_UNIT_2.slice(33, 48)])
+      },
+      {
+        id: 'bai-21',
+        group: 'lessons',
+        badge: 'Tuần 19 • Tiết 1',
+        title: 'Bài 21: Moment lực. Cân bằng của vật rắn (Unit 4)',
+        desc: 'Trọn bộ từ vựng Unit 4: torque, moment of force, lever arm, fulcrum, force couple, equilibrium...',
+        btvnUrl: 'https://physicsist.github.io/VAT-LI-10-BTVN-Bai21/',
+        words: enrichWithIpa(VOCAB_UNIT_4)
+      },
+      {
+        id: 'bai-22',
+        group: 'lessons',
+        badge: 'Tuần 19 • Tiết 2',
+        title: 'Bài 22: Thực hành tổng hợp lực (Equilibrium & Forces)',
+        desc: 'Từ vựng Cân bằng tĩnh (static equilibrium), hợp lực, ngẫu lực và vật rắn.',
+        btvnUrl: 'https://physicsist.github.io/VAT-LI-10-BTVN-Bai22/',
+        words: enrichWithIpa(VOCAB_UNIT_4)
+      },
+      {
+        id: 'bai-23',
+        group: 'lessons',
+        badge: 'Tuần 20 • Tiết 1',
+        title: 'Bài 23: Năng lượng. Công cơ học (Work & Energy - Unit 3)',
+        desc: 'Từ vựng Unit 3: work, mechanical energy, conservation of energy, conservative force...',
+        btvnUrl: 'https://physicsist.github.io/VAT-LI-10-BTVN-Bai23/',
+        words: enrichWithIpa(VOCAB_UNIT_3)
+      },
+      {
+        id: 'bai-24',
+        group: 'lessons',
+        badge: 'Tuần 20 • Tiết 2',
+        title: 'Bài 24: Công suất (Power & Work)',
+        desc: 'Thuật ngữ chuyên ngành Công (work), Công suất (power) và hiệu suất cơ học.',
+        btvnUrl: 'https://physicsist.github.io/VAT-LI-10-Bai-24/',
+        words: enrichWithIpa(VOCAB_UNIT_3)
+      },
+      {
+        id: 'bai-25',
+        group: 'lessons',
+        badge: 'Tuần 21 • Tiết 1',
+        title: 'Bài 25: Động năng, Thế năng (Kinetic & Potential Energy)',
+        desc: 'Thuật ngữ: kinetic energy, potential energy, gravitational potential energy, work-kinetic energy theorem...',
+        btvnUrl: 'https://physicsist.github.io/VAT-LI-10-Bai25/',
+        words: enrichWithIpa(VOCAB_UNIT_3)
+      },
+      {
+        id: 'bai-26',
+        group: 'lessons',
+        badge: 'Tuần 21 • Tiết 2',
+        title: 'Bài 26: Cơ năng và Định luật bảo toàn cơ năng',
+        desc: 'Thuật ngữ: mechanical energy, elastic potential energy, conservation law, isolated system...',
+        btvnUrl: 'https://physicsist.github.io/VAT-LI-10-Bai26/',
+        words: enrichWithIpa(VOCAB_UNIT_3)
+      },
+      {
+        id: 'bai-27',
+        group: 'lessons',
+        badge: 'Tuần 22 • Tiết 1',
+        title: 'Bài 27: Hiệu suất (Efficiency, Energy & Combustion)',
+        desc: 'Thuật ngữ chuyển hóa năng lượng, động cơ đốt trong (internal combustion engine) và bảo toàn năng lượng.',
+        btvnUrl: 'https://physicsist.github.io/VAT-LI-10-Bai-27/',
+        words: enrichWithIpa([...VOCAB_UNIT_3, ...VOCAB_UNIT_6.slice(80, 95)])
+      },
+      {
+        id: 'bai-28',
+        group: 'lessons',
+        badge: 'Tuần 22 • Tiết 2',
+        title: 'Bài 28: Động lượng (Momentum & Impulse)',
+        desc: 'Thuật ngữ trọng tâm: momentum (động lượng), impulse (xung lực), isolated system (hệ cô lập)...',
+        btvnUrl: 'https://physicsist.github.io/VAT-LI-10-Bai28/',
+        words: enrichWithIpa(VOCAB_UNIT_3)
+      },
+      {
+        id: 'bai-29',
+        group: 'lessons',
+        badge: 'Tuần 23 • Tiết 1',
+        title: 'Bài 29: Định luật bảo toàn động lượng (Collisions)',
+        desc: 'Thuật ngữ va chạm: elastic collision, inelastic collision, head-on collision, conservation of momentum...',
+        btvnUrl: 'https://physicsist.github.io/VAT-LI-10-Bai29/',
+        words: enrichWithIpa(VOCAB_UNIT_3)
+      },
+      {
+        id: 'bai-30',
+        group: 'lessons',
+        badge: 'Tuần 29 • Tiết 1',
+        title: 'Bài 30: Thực hành xác định động lượng',
+        desc: 'Ôn tập chuyên sâu các thuật ngữ thực hành va chạm (collision) và bảo toàn động lượng.',
+        btvnUrl: 'https://physicsist.github.io/VAT-LI-10-Bai30/',
+        words: enrichWithIpa(VOCAB_UNIT_3)
+      },
+      {
+        id: 'bai-31',
+        group: 'lessons',
+        badge: 'Tuần 29 • Tiết 2',
+        title: 'Bài 31: Động học của chuyển động tròn đều (Circular Motion)',
+        desc: 'Thuật ngữ: uniform circular motion, angular displacement, angular speed, angular velocity, period, frequency...',
+        btvnUrl: 'https://physicsist.github.io/VAT-LI-10-Bai31/',
+        words: enrichWithIpa([...VOCAB_UNIT_2.slice(14, 34), ...VOCAB_UNIT_5.slice(13, 20)])
+      },
+      {
+        id: 'bai-32',
+        group: 'lessons',
+        badge: 'Tuần 30 • Tiết 1',
+        title: 'Bài 32: Lực hướng tâm và gia tốc hướng tâm',
+        desc: 'Thuật ngữ: centripetal force, centrifugal force, centripetal acceleration, tangential acceleration...',
+        btvnUrl: 'https://physicsist.github.io/VAT-LI-10-Bai-32/',
+        words: enrichWithIpa(VOCAB_UNIT_2.slice(14, 51))
+      },
+      {
+        id: 'bai-33',
+        group: 'lessons',
+        badge: 'Tuần 30 • Tiết 2',
+        title: 'Bài 33: Biến dạng của vật rắn (Solid Deformation & Spring)',
+        desc: 'Thuật ngữ: deform, elastic force, spring, spring-mass system, crystalline solid, amorphous solid, lattice...',
+        btvnUrl: 'https://physicsist.github.io/VAT-LI-10-BTVN-Bai-33/',
+        words: enrichWithIpa([...VOCAB_UNIT_2.slice(34, 48), ...VOCAB_UNIT_6.slice(95, 110)])
+      },
+      {
+        id: 'bai-34',
+        group: 'lessons',
+        badge: 'Tuần 31 • Tiết 1',
+        title: 'Bài 34: Khối lượng riêng. Áp suất chất lỏng (Pressure & Fluids)',
+        desc: 'Thuật ngữ Unit 6: pressure, atmospheric pressure, barometer, manometer, buoyant force, surface tension...',
+        btvnUrl: 'https://physicsist.github.io/VAT-LI-10-BTVN-Bai34/',
+        words: enrichWithIpa(VOCAB_UNIT_6.slice(18, 42).concat(VOCAB_UNIT_6.slice(90, 105)))
+      }
+    ];
+
+    /*************************************************************************
+     * 3. TRẠNG THÁI ỨNG DỤNG (STATE) & LƯU TRỮ LOCALSTORAGE
+     *************************************************************************/
+    const STORAGE_KEY = 'VL_VOCAB_STUDIO_STATE_V1';
+
+    let appState = {
+      studentName: '',
+      studentClass: '',
+      soundEnabled: true,
+      sidebarCategory: 'units', // 'units' | 'lessons'
+      currentModuleId: 'unit-2',
+      currentStudyMode: 'flashcard', // 'flashcard' | 'quiz' | 'dictionary' | 'list'
+
+      // Trạng thái Flashcard 6 giây
+      flashcardList: [],
+      flashcardIndex: 0,
+      flashcardTimeLeft: 6,
+      flashcardPaused: false,
+      flashcardShowEnFirst: true,
+      flashcardRevealed: false,
+
+      // Trạng thái Quiz hiện tại
+      quizQuestions: [],
+      quizAnswers: {},
+
+      // Tiến độ từng Module
+      moduleProgress: {
+        // [moduleId]: { bestQuizScore: 0, quizTotal: 15, reflection: '', completed: false }
+      },
+
+      // Bình luận kiểu Facebook
+      comments: {
+        'unit-2': [
+          {
+            id: 'seed_u2',
+            author: 'Nguyễn Minh Quân',
+            className: '10A1',
+            text: 'Mình vừa thử chế độ phản xạ 6 giây Unit 2! Nhờ vậy mà phân biệt cực nhanh "displacement" (độ dời) và "distance" (quãng đường).',
+            time: '12 phút trước',
+            likes: 9,
+            ideas: 5,
+            replies: [
+              { author: 'Lê Thảo Vy', className: '10A1', text: 'Chuẩn luôn, bấm nút nghe phát âm tiếng Anh cũng giúp nhớ lâu hơn hẳn!', time: '6 phút trước' }
+            ]
+          }
+        ],
+        'unit-5': [
+          {
+            id: 'seed_u5',
+            author: 'Trần Hoàng Bách',
+            className: '10A2',
+            text: 'Câu mình tự đặt với từ resonance: "Resonance occurs when the forced frequency equals the natural frequency of the oscillator."',
+            time: '25 phút trước',
+            likes: 14,
+            ideas: 8,
+            replies: []
+          }
+        ]
+      }
+    };
+
+    function loadState() {
+      try {
+        const raw = localStorage.getItem(STORAGE_KEY);
+        if (raw) {
+          const parsed = JSON.parse(raw);
+          appState.studentName = parsed.studentName || '';
+          appState.studentClass = parsed.studentClass || '';
+          appState.soundEnabled = parsed.soundEnabled !== undefined ? parsed.soundEnabled : true;
+          appState.currentModuleId = parsed.currentModuleId || 'unit-2';
+          appState.moduleProgress = parsed.moduleProgress || {};
+          if (parsed.comments) {
+            appState.comments = { ...appState.comments, ...parsed.comments };
+          }
+        }
+      } catch (e) {
+        console.warn('Không thể đọc localStorage:', e);
+      }
+    }
+
+    function saveState() {
+      try {
+        const toSave = {
+          studentName: appState.studentName,
+          studentClass: appState.studentClass,
+          soundEnabled: appState.soundEnabled,
+          currentModuleId: appState.currentModuleId,
+          moduleProgress: appState.moduleProgress,
+          comments: appState.comments
+        };
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(toSave));
+      } catch (e) {
+        console.warn('Không thể lưu localStorage:', e);
+      }
+    }
+
+    function getModuleProgress(moduleId) {
+      if (!appState.moduleProgress[moduleId]) {
+        appState.moduleProgress[moduleId] = {
+          bestQuizScore: 0,
+          quizTotal: 15,
+          reflection: '',
+          completed: false
+        };
+      }
+      return appState.moduleProgress[moduleId];
+    }
+
+    function getActiveModule() {
+      return MODULES_DATA.find(m => m.id === appState.currentModuleId) || MODULES_DATA[0];
+    }
+
+    /*************************************************************************
+     * 4. HỆ THỐNG ÂM THANH XÁC NHẬN ĐÚNG/SAI (WEB AUDIO API) & PHÁT ÂM TỪ VỰNG
+     *************************************************************************/
+    let audioCtx = null;
+    function getAudioCtx() {
+      if (!audioCtx) {
+        const AudioContextClass = window.AudioContext || window.webkitAudioContext;
+        if (AudioContextClass) audioCtx = new AudioContextClass();
+      }
+      if (audioCtx && audioCtx.state === 'suspended') {
+        audioCtx.resume();
+      }
+      return audioCtx;
+    }
+
+    function playCorrectSound() {
+      if (!appState.soundEnabled) return;
+      const ctx = getAudioCtx();
+      if (!ctx) return;
+
+      const notes = [523.25, 659.25, 783.99, 1046.5];
+      notes.forEach((freq, idx) => {
+        const osc = ctx.createOscillator();
+        const gain = ctx.createGain();
+        osc.type = 'triangle';
+        osc.frequency.setValueAtTime(freq, ctx.currentTime + idx * 0.07);
+        gain.gain.setValueAtTime(0.001, ctx.currentTime + idx * 0.07);
+        gain.gain.exponentialRampToValueAtTime(0.22, ctx.currentTime + idx * 0.07 + 0.02);
+        gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + idx * 0.07 + 0.22);
+        osc.connect(gain);
+        gain.connect(ctx.destination);
+        osc.start(ctx.currentTime + idx * 0.07);
+        osc.stop(ctx.currentTime + idx * 0.07 + 0.24);
+      });
+    }
+
+    function playWrongSound() {
+      if (!appState.soundEnabled) return;
+      const ctx = getAudioCtx();
+      if (!ctx) return;
+
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+      osc.type = 'sawtooth';
+      osc.frequency.setValueAtTime(300, ctx.currentTime);
+      osc.frequency.linearRampToValueAtTime(140, ctx.currentTime + 0.32);
+      gain.gain.setValueAtTime(0.18, ctx.currentTime);
+      gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.34);
+      osc.connect(gain);
+      gain.connect(ctx.destination);
+      osc.start(ctx.currentTime);
+      osc.stop(ctx.currentTime + 0.35);
+    }
+
+    function toggleSound() {
+      appState.soundEnabled = !appState.soundEnabled;
+      saveState();
+      updateSoundButtonUI();
+      if (appState.soundEnabled) playCorrectSound();
+    }
+
+    function updateSoundButtonUI() {
+      const btn = document.getElementById('soundToggleBtn');
+      const icon = document.getElementById('soundIcon');
+      const text = document.getElementById('soundText');
+      if (appState.soundEnabled) {
+        icon.textContent = '🔊';
+        text.textContent = 'Âm thanh: BẬT';
+        btn.className = 'px-3.5 py-2.5 rounded-xl font-bold text-xs sm:text-sm flex items-center gap-1.5 border transition shadow-sm bg-emerald-50 text-emerald-700 border-emerald-200 hover:bg-emerald-100';
+      } else {
+        icon.textContent = '🔇';
+        text.textContent = 'Âm thanh: TẮT';
+        btn.className = 'px-3.5 py-2.5 rounded-xl font-bold text-xs sm:text-sm flex items-center gap-1.5 border transition shadow-sm bg-slate-100 text-slate-600 border-slate-200 hover:bg-slate-200';
+      }
+    }
+
+    function speakEnglishText(text) {
+      if (!('speechSynthesis' in window)) return;
+      window.speechSynthesis.cancel();
+      const utter = new SpeechSynthesisUtterance(text);
+      utter.lang = 'en-US';
+      utter.rate = 0.92;
+      window.speechSynthesis.speak(utter);
+    }
+
+    function speakCurrentWord() {
+      const item = appState.flashcardList[appState.flashcardIndex];
+      if (item) speakEnglishText(item.en);
+    }
+
+    /*************************************************************************
+     * 5. KIỂM TRA BẮT BUỘC NHẬP CHÍNH XÁC HỌ TÊN & LỚP
+     *************************************************************************/
+    function isStudentIdentified() {
+      return appState.studentName.trim().length >= 2 && appState.studentClass.trim().length >= 2;
+    }
+
+    function saveStudentIdentity() {
+      appState.studentName = document.getElementById('studentNameInput').value;
+      appState.studentClass = document.getElementById('studentClassInput').value;
+      saveState();
+      updateIdentityUI();
+    }
+
+    function updateIdentityUI() {
+      const badge = document.getElementById('studentStatusBadge');
+      const banner = document.getElementById('identityWarningBanner');
+      const box = document.getElementById('studentIdentityBox');
+      const avatar = document.getElementById('userCommentAvatar');
+
+      if (isStudentIdentified()) {
+        const name = appState.studentName.trim();
+        const cls = appState.studentClass.trim();
+        badge.textContent = `👤 Học sinh: ${name} (${cls})`;
+        badge.className = 'text-xs font-extrabold text-emerald-700';
+        banner.classList.add('hidden');
+        box.className = 'flex items-center gap-1.5 bg-emerald-50/70 border-2 border-emerald-300 rounded-xl p-1.5';
+        avatar.textContent = name.charAt(0).toUpperCase();
+      } else {
+        badge.textContent = '⚠️ Chưa nhập đầy đủ Họ tên & Lớp';
+        badge.className = 'text-xs font-bold text-rose-600';
+        banner.classList.remove('hidden');
+        box.className = 'flex items-center gap-1.5 bg-amber-50 border-2 border-amber-400 rounded-xl p-1.5';
+        avatar.textContent = 'HS';
+      }
+    }
+
+    function requireStudentIdentity() {
+      if (!isStudentIdentified()) {
+        playWrongSound();
+        alert('⚠️ Bắt buộc: Em hãy nhập chính xác HỌ VÀ TÊN cùng LỚP ở góc trên màn hình trước khi thực hiện nhé!');
+        if (!appState.studentName.trim()) {
+          document.getElementById('studentNameInput').focus();
+        } else {
+          document.getElementById('studentClassInput').focus();
+        }
+        return false;
+      }
+      return true;
+    }
+
+    /*************************************************************************
+     * 6. SIDEBAR DANH MỤC HỌC PHẦN (8 UNIT TẢI LÊN & BÀI 10 -> 34)
+     *************************************************************************/
+    function switchSidebarCategory(cat) {
+      appState.sidebarCategory = cat;
+      const btnUnits = document.getElementById('catBtnUnits');
+      const btnLessons = document.getElementById('catBtnLessons');
+      if (cat === 'units') {
+        btnUnits.className = 'py-2 rounded-xl bg-blue-600 text-white shadow-xs transition';
+        btnLessons.className = 'py-2 rounded-xl bg-white text-slate-700 hover:bg-slate-50 border border-slate-200 transition';
+      } else {
+        btnLessons.className = 'py-2 rounded-xl bg-blue-600 text-white shadow-xs transition';
+        btnUnits.className = 'py-2 rounded-xl bg-white text-slate-700 hover:bg-slate-50 border border-slate-200 transition';
+      }
+      renderSidebarList();
+    }
+
+    function renderSidebarList() {
+      const container = document.getElementById('sidebarListContainer');
+      const searchVal = (document.getElementById('sidebarSearchInput')?.value || '').toLowerCase().trim();
+
+      const completedTotal = MODULES_DATA.filter(m => getModuleProgress(m.id).completed).length;
+      document.getElementById('completedHeaderBadge').textContent = `Hoàn thành: ${completedTotal}/${MODULES_DATA.length} bài`;
+
+      const filtered = MODULES_DATA.filter(m => {
+        const matchGroup = searchVal ? true : m.group === appState.sidebarCategory;
+        const matchText =
+          m.title.toLowerCase().includes(searchVal) ||
+          m.badge.toLowerCase().includes(searchVal) ||
+          m.desc.toLowerCase().includes(searchVal);
+        return matchGroup && matchText;
+      });
+
+      container.innerHTML = filtered.map(mod => {
+        const isCurrent = mod.id === appState.currentModuleId;
+        const prog = getModuleProgress(mod.id);
+
+        return `
+          <button
+            onclick="selectModule('${mod.id}')"
+            class="w-full text-left p-3 rounded-xl border transition flex items-start gap-2.5 ${
+              isCurrent
+                ? 'border-blue-600 bg-blue-50/90 shadow-xs'
+                : 'border-slate-200 bg-white hover:border-blue-300'
+            }"
+          >
+            <div class="w-8 h-8 rounded-lg font-extrabold text-xs flex items-center justify-center shrink-0 mt-0.5 ${
+              prog.completed
+                ? 'bg-emerald-600 text-white'
+                : isCurrent
+                ? 'bg-blue-600 text-white'
+                : 'bg-slate-100 text-slate-700'
+            }">
+              ${prog.completed ? '✓' : mod.group === 'units' ? 'U' : 'B'}
+            </div>
+            <div class="flex-1 min-w-0">
+              <div class="flex items-center justify-between gap-1">
+                <span class="text-[10px] font-bold uppercase tracking-wider text-indigo-600 truncate">
+                  ${mod.badge}
+                </span>
+                <span class="text-[10px] font-extrabold px-1.5 py-0.5 rounded bg-slate-100 text-slate-600">
+                  ${mod.words.length} từ
+                </span>
+              </div>
+              <div class="font-bold text-xs sm:text-sm text-slate-900 mt-0.5 leading-snug">
+                ${mod.title}
+              </div>
+            </div>
+          </button>
+        `;
+      }).join('');
+    }
+
+    function selectModule(moduleId) {
+      appState.currentModuleId = moduleId;
+      saveState();
+      initModuleData();
+      renderSidebarList();
+      renderActiveModuleHeader();
+
+      // Đóng sidebar trên mobile
+      const sidebar = document.getElementById('sidebarContainer');
+      if (window.innerWidth < 1024 && !sidebar.classList.contains('hidden')) {
+        sidebar.classList.add('hidden');
+      }
+    }
+
+    function toggleMobileSidebar() {
+      document.getElementById('sidebarContainer').classList.toggle('hidden');
+    }
+
+    /*************************************************************************
+     * 7. KHỞI TẠO DỮ LIỆU KHI CHỌN BÀI MỚI & CHUYỂN CHẾ ĐỘ HỌC
+     *************************************************************************/
+    function shuffleArray(arr) {
+      const copy = [...arr];
+      for (let i = copy.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [copy[i], copy[j]] = [copy[j], copy[i]];
+      }
+      return copy;
+    }
+
+    function initModuleData() {
+      const mod = getActiveModule();
+      appState.flashcardList = shuffleArray(mod.words);
+      appState.flashcardIndex = 0;
+      appState.flashcardTimeLeft = 6;
+      appState.flashcardRevealed = false;
+      appState.flashcardShowEnFirst = Math.random() > 0.5;
+
+      generateQuizForCurrentModule();
+      renderFlashcardUI();
+      renderVocabTable();
+      renderModuleComments();
+
+      const prog = getModuleProgress(mod.id);
+      document.getElementById('reflectionTextarea').value = prog.reflection || '';
+      updateReflectionStatusUI(prog.reflection || '');
+    }
+
+    function renderActiveModuleHeader() {
+      const mod = getActiveModule();
+      const prog = getModuleProgress(mod.id);
+
+      document.getElementById('activeModuleTag').textContent = mod.badge;
+      document.getElementById('activeModuleWordCount').textContent = `${mod.words.length} từ vựng`;
+      document.getElementById('activeModuleTitle').textContent = mod.title;
+      document.getElementById('activeModuleDesc').textContent = mod.desc;
+
+      const chip = document.getElementById('activeModuleCompletedChip');
+      if (prog.completed) {
+        chip.textContent = `✅ Đã hoàn thành (Đỉnh cao: ${prog.bestQuizScore}/${prog.quizTotal})`;
+        chip.className = 'text-xs font-extrabold px-2.5 py-1 rounded-full bg-emerald-100 text-emerald-800 border border-emerald-300';
+      } else {
+        chip.textContent = `⏳ Chưa hoàn thành (Điểm cao nhất: ${prog.bestQuizScore}/${prog.quizTotal})`;
+        chip.className = 'text-xs font-bold px-2.5 py-1 rounded-full bg-slate-100 text-slate-600';
+      }
+
+      const btvnBox = document.getElementById('externalBtvnBox');
+      const btvnLink = document.getElementById('externalBtvnLink');
+      if (mod.btvnUrl) {
+        btvnBox.classList.remove('hidden');
+        btvnLink.href = mod.btvnUrl;
+      } else {
+        btvnBox.classList.add('hidden');
+      }
+    }
+
+    function switchStudyMode(mode) {
+      appState.currentStudyMode = mode;
+      const modes = ['flashcard', 'quiz', 'dictionary', 'list'];
+      modes.forEach(m => {
+        const view = document.getElementById(`viewMode_${m}`);
+        const btn = document.getElementById(`modeBtn_${m}`);
+        if (m === mode) {
+          view.classList.remove('hidden');
+          btn.className = 'px-4 py-2.5 rounded-xl font-extrabold text-xs sm:text-sm transition bg-blue-600 text-white shadow-sm flex items-center gap-1.5';
+        } else {
+          view.classList.add('hidden');
+          btn.className = 'px-4 py-2.5 rounded-xl font-extrabold text-xs sm:text-sm transition bg-slate-100 text-slate-700 hover:bg-slate-200 flex items-center gap-1.5';
+        }
+      });
+    }
+
+    /*************************************************************************
+     * 8. LOGIC CHẾ ĐỘ 1: THẺ PHẢN XẠ 6 GIÂY + ĐẾM GIỜ
+     *************************************************************************/
+    function renderFlashcardUI() {
+      const list = appState.flashcardList;
+      if (!list || list.length === 0) return;
+
+      const idx = appState.flashcardIndex % list.length;
+      const item = list[idx];
+
+      document.getElementById('flashcardCounterText').textContent = `Từ: ${idx + 1} / ${list.length}`;
+      document.getElementById('flashcardTimerNumber').textContent = appState.flashcardTimeLeft;
+
+      const langBadge = document.getElementById('flashcardLangBadge');
+      const ipaBadge = document.getElementById('flashcardIpaBadge');
+      const mainText = document.getElementById('flashcardMainText');
+      const subAnswer = document.getElementById('flashcardSubAnswer');
+
+      if (appState.flashcardShowEnFirst) {
+        langBadge.textContent = 'Thuật ngữ Tiếng Anh (EN)';
+        ipaBadge.textContent = item.ipa || '';
+        mainText.textContent = item.en;
+        subAnswer.textContent = `Nghĩa TV: ${item.vi}`;
+      } else {
+        langBadge.textContent = 'Nghĩa Tiếng Việt (VI)';
+        ipaBadge.textContent = '';
+        mainText.textContent = item.vi;
+        subAnswer.textContent = `Tiếng Anh: ${item.en} ${item.ipa || ''}`;
+      }
+
+      if (appState.flashcardRevealed || appState.flashcardTimeLeft <= 1) {
+        subAnswer.classList.remove('hidden');
+      } else {
+        subAnswer.classList.add('hidden');
+      }
+    }
+
+    function flipFlashcardAnswer() {
+      appState.flashcardRevealed = !appState.flashcardRevealed;
+      renderFlashcardUI();
+    }
+
+    function stepFlashcard(delta) {
+      const len = appState.flashcardList.length;
+      if (!len) return;
+      appState.flashcardIndex = (appState.flashcardIndex + delta + len) % len;
+      appState.flashcardTimeLeft = 6;
+      appState.flashcardRevealed = false;
+      appState.flashcardShowEnFirst = Math.random() > 0.5;
+      renderFlashcardUI();
+    }
+
+    function shuffleCurrentFlashcards() {
+      appState.flashcardList = shuffleArray(appState.flashcardList);
+      appState.flashcardIndex = 0;
+      appState.flashcardTimeLeft = 6;
+      appState.flashcardRevealed = false;
+      renderFlashcardUI();
+    }
+
+    function toggleFlashcardTimer() {
+      appState.flashcardPaused = !appState.flashcardPaused;
+      const btn = document.getElementById('btnPauseResumeTimer');
+      if (appState.flashcardPaused) {
+        btn.textContent = '▶️ Tiếp tục đếm 6s';
+        btn.className = 'w-full py-2.5 px-3 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-extrabold text-xs sm:text-sm shadow-xs transition';
+      } else {
+        btn.textContent = '⏸️ Tạm dừng đếm giờ';
+        btn.className = 'w-full py-2.5 px-3 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-extrabold text-xs sm:text-sm shadow-xs transition';
+      }
+    }
+
+    // Bộ đếm ngược 6 giây chuẩn xác mỗi 1000ms
+    setInterval(() => {
+      if (appState.currentStudyMode !== 'flashcard' || appState.flashcardPaused) return;
+      appState.flashcardTimeLeft -= 1;
+      if (appState.flashcardTimeLeft < 0) {
+        stepFlashcard(1);
+      } else {
+        renderFlashcardUI();
+      }
+    }, 1000);
+
+    /*************************************************************************
+     * 9. LOGIC CHẾ ĐỘ 2: TRẮC NGHIỆM TỪ VỰNG (ĐẢO CÂU HỎI & ĐÁP ÁN NGẪU NHIÊN)
+     *************************************************************************/
+    function generateQuizForCurrentModule() {
+      const mod = getActiveModule();
+      const words = mod.words;
+      const quizSize = Math.min(15, words.length);
+      const pickedWords = shuffleArray(words).slice(0, quizSize);
+
+      appState.quizQuestions = pickedWords.map((target, idx) => {
+        const askEnToVi = Math.random() > 0.35; // 65% hỏi Anh -> Việt, 35% hỏi Việt -> Anh
+        const pool = words.length >= 4 ? words : ALL_COMBINED_WORDS;
+
+        const wrongCandidates = shuffleArray(
+          pool.filter(w => w.en.toLowerCase() !== target.en.toLowerCase() && w.vi !== target.vi)
+        ).slice(0, 3);
+
+        const rawOptions = [target, ...wrongCandidates];
+        const shuffledOptions = shuffleArray(rawOptions);
+
+        return {
+          id: `q_${mod.id}_${idx}_${Date.now()}`,
+          target,
+          askEnToVi,
+          prompt: askEnToVi
+            ? `Thuật ngữ Vật lí <b>"${target.en}"</b> ${target.ipa ? `<span class="text-indigo-600 font-mono text-sm">${target.ipa}</span>` : ''} có nghĩa tiếng Việt là gì?`
+            : `Nghĩa tiếng Việt <b>"${target.vi}"</b> tương ứng với thuật ngữ tiếng Anh nào sau đây?`,
+          options: shuffledOptions.map(o => (askEnToVi ? o.vi : o.en)),
+          correctText: askEnToVi ? target.vi : target.en
+        };
+      });
+
+      appState.quizAnswers = {};
+      const prog = getModuleProgress(mod.id);
+      prog.quizTotal = quizSize;
+      renderQuizUI();
+    }
+
+    function selectQuizOption(qIndex, optIndex) {
+      if (!requireStudentIdentity()) return;
+      const q = appState.quizQuestions[qIndex];
+      if (!q || appState.quizAnswers[q.id] !== undefined) return;
+
+      const chosen = q.options[optIndex];
+      const isCorrect = chosen === q.correctText;
+
+      appState.quizAnswers[q.id] = {
+        selectedIndex: optIndex,
+        chosen,
+        isCorrect
+      };
+
+      if (isCorrect) {
+        playCorrectSound();
+      } else {
+        playWrongSound();
+      }
+
+      // Cập nhật điểm cao nhất của học phần
+      const mod = getActiveModule();
+      const prog = getModuleProgress(mod.id);
+      const currentCorrect = Object.values(appState.quizAnswers).filter(a => a.isCorrect).length;
+      if (currentCorrect > prog.bestQuizScore) {
+        prog.bestQuizScore = currentCorrect;
+      }
+
+      saveState();
+      renderQuizUI();
+      renderActiveModuleHeader();
+    }
+
+    function renderQuizUI() {
+      const container = document.getElementById('quizQuestionsContainer');
+      const questions = appState.quizQuestions;
+      const answers = appState.quizAnswers;
+
+      const correctCount = Object.values(answers).filter(a => a.isCorrect).length;
+      const answeredCount = Object.keys(answers).length;
+      document.getElementById('quizScoreChip').textContent = `Đã làm: ${answeredCount}/${questions.length} • Đúng: ${correctCount}/${questions.length}`;
+
+      const labels = ['A', 'B', 'C', 'D'];
+
+      container.innerHTML = questions.map((q, qIdx) => {
+        const ans = answers[q.id];
+        const isAnswered = ans !== undefined;
+
+        const optsHtml = q.options.map((optText, oIdx) => {
+          let btnClass = 'bg-white border-slate-200 hover:border-blue-400 text-slate-800';
+          let badgeClass = 'bg-slate-100 text-slate-700';
+
+          if (isAnswered) {
+            const isThisCorrect = optText === q.correctText;
+            const isThisSelected = ans.selectedIndex === oIdx;
+            if (isThisCorrect) {
+              btnClass = 'bg-emerald-50 border-emerald-500 text-emerald-950 font-bold';
+              badgeClass = 'bg-emerald-600 text-white';
+            } else if (isThisSelected && !isThisCorrect) {
+              btnClass = 'bg-rose-50 border-rose-500 text-rose-950 font-bold';
+              badgeClass = 'bg-rose-600 text-white';
+            } else {
+              btnClass = 'bg-slate-50 border-slate-200 text-slate-400 opacity-75';
+            }
+          }
+
+          return `
+            <button
+              onclick="selectQuizOption(${qIdx}, ${oIdx})"
+              ${isAnswered ? 'disabled' : ''}
+              class="option-btn w-full text-left p-3.5 rounded-xl border-2 flex items-center gap-3 ${btnClass}"
+            >
+              <span class="w-8 h-8 rounded-lg font-extrabold text-xs sm:text-sm flex items-center justify-center shrink-0 ${badgeClass}">
+                ${labels[oIdx]}
+              </span>
+              <span class="text-sm sm:text-base flex-1">${optText}</span>
+            </button>
+          `;
+        }).join('');
+
+        const safeEn = q.target.en.replace(/'/g, "\\'");
+        const feedbackHtml = isAnswered ? `
+          <div class="mt-3 p-3.5 rounded-xl border text-xs sm:text-sm ${ans.isCorrect ? 'bg-emerald-50 border-emerald-200 text-emerald-900' : 'bg-rose-50 border-rose-200 text-rose-900'} animate-pop flex flex-wrap items-center justify-between gap-2">
+            <div>
+              <b>${ans.isCorrect ? '🎉 Chính xác!' : '💡 Chưa đúng!'}</b>
+              Thuật ngữ: <b>${q.target.en}</b> ${q.target.ipa || ''} = <b>${q.target.vi}</b>
+            </div>
+            <button
+              onclick="speakEnglishText('${safeEn}')"
+              class="px-3 py-1 rounded-lg bg-white border border-slate-200 text-slate-700 font-bold text-xs hover:bg-slate-100"
+            >
+              🔈 Nghe phát âm
+            </button>
+          </div>
+        ` : '';
+
+        return `
+          <article class="bg-white rounded-2xl border border-slate-200 p-5 shadow-sm">
+            <div class="flex items-center justify-between gap-2 mb-2.5">
+              <span class="px-3 py-1 rounded-lg bg-indigo-600 text-white font-extrabold text-xs">
+                Câu ${qIdx + 1} / ${questions.length}
+              </span>
+              <button
+                onclick="speakEnglishText('${safeEn}')"
+                class="text-xs font-bold text-blue-600 hover:underline flex items-center gap-1"
+              >
+                🔈 Nghe phát âm từ gốc
+              </button>
+            </div>
+            <div class="text-base sm:text-lg font-semibold text-slate-900 mb-3">
+              ${q.prompt}
+            </div>
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              ${optsHtml}
+            </div>
+            ${feedbackHtml}
+          </article>
+        `;
+      }).join('');
+    }
+
+    /*************************************************************************
+     * 10. LOGIC CHẾ ĐỘ 3 & 4: TRA CỨU TỪ ĐIỂN IPA (UNIT 1-10) & BẢNG ĐẦY ĐỦ
+     *************************************************************************/
+    function quickLookupWord(word) {
+      document.getElementById('vocabChatInput').value = word;
+      handleVocabChatSubmit();
+    }
+
+    function handleVocabChatSubmit() {
+      const inputEl = document.getElementById('vocabChatInput');
+      const text = inputEl.value.trim();
+      if (!text) return;
+
+      appendChatMsg(text, 'user');
+      inputEl.value = '';
+
+      setTimeout(() => {
+        const lower = text.toLowerCase();
+        // Nếu học sinh viết cả một câu dài (>= 4 từ tiếng Anh)
+        const wordTokens = text.split(/\s+/);
+        if (wordTokens.length >= 4) {
+          const matchedVocab = ALL_COMBINED_WORDS.find(w => lower.includes(w.en.toLowerCase()));
+          if (matchedVocab) {
+            playCorrectSound();
+            appendChatMsg(
+              `🌟 <b>Tuyệt vời!</b> Em đã đặt một câu chuyên ngành rất hay có sử dụng thuật ngữ <b>"${matchedVocab.en}"</b> (${matchedVocab.vi}). Em có thể sao chép câu này đăng xuống mục Thảo luận lớp bên dưới để các bạn cùng thả tim nhé!`,
+              'bot'
+            );
+            return;
+          }
+        }
+
+        const matches = ALL_COMBINED_WORDS.filter(
+          item => item.en.toLowerCase().includes(lower) || item.vi.toLowerCase().includes(lower)
+        ).slice(0, 5);
+
+        if (matches.length > 0) {
+          playCorrectSound();
+          const lines = matches.map(m =>
+            `• <b>${m.en}</b> ${m.ipa ? `<span class="text-indigo-700 font-mono">${m.ipa}</span>` : ''} : <b>${m.vi}</b>`
+          ).join('<br>');
+          appendChatMsg(
+            `🎯 <b>Kết quả tra cứu (${matches.length} thuật ngữ phù hợp):</b><br>${lines}<br><br>👉 <i>Thử thách: Em hãy gõ một câu tiếng Anh hoàn chỉnh có chứa từ <b>"${matches[0].en}"</b> vào ô chat này nhé!</i>`,
+            'bot'
+          );
+        } else {
+          playWrongSound();
+          appendChatMsg(
+            `⚠️ Không tìm thấy từ <b>"${escapeHtml(text)}"</b> trong kho 350+ thuật ngữ Unit 1–10. Em hãy thử nhập các từ khóa như: <i>kinematics, force, torque, oscillation, isothermal, electric field, photon...</i>`,
+            'bot'
+          );
+        }
+      }, 150);
+    }
+
+    function appendChatMsg(html, sender) {
+      const box = document.getElementById('vocabChatBox');
+      const div = document.createElement('div');
+      if (sender === 'user') {
+        div.className = 'ml-auto max-w-[80%] bg-blue-600 text-white p-3 rounded-2xl rounded-br-xs text-sm';
+        div.textContent = html;
+      } else {
+        div.className = 'max-w-[85%] bg-amber-100/90 text-slate-900 p-3.5 rounded-2xl rounded-bl-xs text-sm leading-relaxed border border-amber-200 animate-pop';
+        div.innerHTML = html;
+      }
+      box.appendChild(div);
+      box.scrollTop = box.scrollHeight;
+    }
+
+    function renderVocabTable() {
+      const mod = getActiveModule();
+      const filterText = (document.getElementById('tableFilterInput')?.value || '').toLowerCase().trim();
+      const tbody = document.getElementById('vocabTableBody');
+
+      const filtered = mod.words.filter(w =>
+        w.en.toLowerCase().includes(filterText) || w.vi.toLowerCase().includes(filterText)
+      );
+
+      tbody.innerHTML = filtered.map((w, idx) => {
+        const safeEn = w.en.replace(/'/g, "\\'");
+        return `
+          <tr class="hover:bg-blue-50/50">
+            <td class="p-3 font-bold text-slate-400">${idx + 1}</td>
+            <td class="p-3 font-extrabold text-slate-900">${escapeHtml(w.en)}</td>
+            <td class="p-3 font-mono text-indigo-600 text-xs">${escapeHtml(w.ipa || '—')}</td>
+            <td class="p-3 font-semibold text-slate-700">${escapeHtml(w.vi)}</td>
+            <td class="p-3 text-center">
+              <button
+                onclick="speakEnglishText('${safeEn}')"
+                class="px-2.5 py-1 rounded-lg bg-blue-50 hover:bg-blue-100 text-blue-700 font-bold text-xs"
+              >
+                🔈 Phát âm
+              </button>
+            </td>
+          </tr>
+        `;
+      }).join('');
+    }
+
+    /*************************************************************************
+     * 11. PHẢN TƯ CUỐI BÀI TẬP (BẮT BUỘC TRƯỚC KHI HOÀN THÀNH)
+     *************************************************************************/
+    function handleReflectionChange() {
+      const text = document.getElementById('reflectionTextarea').value;
+      const prog = getModuleProgress(appState.currentModuleId);
+      prog.reflection = text;
+      saveState();
+      updateReflectionStatusUI(text);
+    }
+
+    function updateReflectionStatusUI(text) {
+      const badge = document.getElementById('reflectionStatusBadge');
+      if (text && text.trim().length >= 8) {
+        badge.textContent = '✓ Đã ghi nội dung phản tư';
+        badge.className = 'text-xs font-extrabold text-emerald-700';
+      } else {
+        badge.textContent = '* Bắt buộc ghi trước khi bấm Hoàn thành';
+        badge.className = 'text-xs font-bold text-rose-600';
+      }
+    }
+
+    function completeCurrentModule() {
+      if (!requireStudentIdentity()) return;
+      const mod = getActiveModule();
+      const prog = getModuleProgress(mod.id);
+      const reflection = (prog.reflection || '').trim();
